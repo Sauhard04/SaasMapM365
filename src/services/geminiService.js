@@ -29,40 +29,39 @@ const getAI = async () => {
 };
 
 export const askLicensingAI = async (prompt, context) => {
-    try {
-        const ai = await getAI();
-        if (!ai) return 'Server initialization failed. A valid VITE_GEMINI_API_KEY is not available';
+    const ai = await getAI();
+    if (!ai) return 'Server initialization failed. A valid VITE_GEMINI_API_KEY is not available';
 
-        const systemInstruction = 'You are an expert Microsoft 365 Licensing Consultant. Help users understand M365 plans (E3, E5, Business Premium, etc.). Be concise, accurate, and focus on security. Suggest cost-effective plans.';
-        const fullPrompt = `${systemInstruction}\n\nContext: ${context || 'General M365 Licensing'}\n\nUser Question: ${prompt}`;
+    const systemInstruction = 'You are an expert Microsoft 365 Licensing Consultant. Help users understand M365 plans (E3, E5, Business Premium, etc.). Be concise, accurate, and focus on security. Suggest cost-effective plans.';
+    const fullPrompt = `${systemInstruction}\n\nContext: ${context || 'General M365 Licensing'}\n\nUser Question: ${prompt}`;
 
+    const generate = async (modelName) => {
+        console.log(`Attempting to generate content with model: ${modelName}`);
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: modelName,
             contents: fullPrompt,
         });
+        return response.text;
+    };
 
-        const text = response.text;
-        return text;
+    try {
+        // Try standard flash first
+        return await generate('gemini-1.5-flash');
     } catch (error) {
-        console.error('Gemini API Error:', error);
+        console.warn('Gemini 1.5 Flash failed, attempting fallback to 2.0 Flash Lite:', error.message);
 
-        // Enhanced Debugging
         try {
-            const ai = await getAI();
-            if (ai) {
-                console.log('Attempting to list available models...');
-                const listResp = await ai.models.list();
-                console.log('ListModels Full Response:', listResp);
+            // Fallback to lite model
+            return await generate('gemini-2.0-flash-lite-001');
+        } catch (fallbackError) {
+            console.error('Gemini Fallback Error:', fallbackError);
 
-                // Try to find ANY valid model
-                if (listResp && listResp.models) {
-                    console.log('Found models:', listResp.models.map(m => m.name));
-                }
+            try {
+                // Final fallback to pro
+                return await generate('gemini-pro');
+            } catch (finalError) {
+                return `The AI assistant is currently unavailable due to high traffic (Rate Limit Exceeded). Please try again in a minute. Details: ${finalError.message}`;
             }
-        } catch (listError) {
-            console.error('Failed to list models during debug:', listError);
         }
-
-        return `The AI assistant encountered an error. Please verify your API key or try again later. Error details: ${error.message}`;
     }
 };

@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import PlanSelector from './components/PlanSelector.jsx';
 import FeatureMatrix from './components/FeatureMatrix.jsx';
 import ComparisonTool from './components/ComparisonTool.jsx';
-import AIConsultant from './components/AIConsultant.jsx';
 import AdminPortal from './components/AdminPortal.jsx';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import './styles/App.css';
@@ -196,7 +195,6 @@ const AppContent = () => {
                 )}
             </main>
 
-            <AIConsultant />
 
             {/* Login Modal */}
             {showLogin && (
