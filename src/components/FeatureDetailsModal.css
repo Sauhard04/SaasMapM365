@@ -1,0 +1,613 @@
+/* FeatureDetailsModal CSS - matches actual JSX class names */
+
+/* Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    overflow-y: auto;
+}
+
+/* Container */
+.modal-container {
+    background: white;
+    width: 100%;
+    max-width: 72rem;
+    border-radius: 3rem;
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    animation: zoomIn 0.25s ease;
+    margin: 2.5rem auto;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Header */
+.modal-header {
+    padding: 2.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-shrink: 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modal-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.modal-category-badge {
+    padding: 0.25rem 0.875rem;
+    border-radius: 999px;
+    font-size: 0.5625rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.modal-tier-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.875rem;
+    border-radius: 999px;
+    font-size: 0.5625rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: #f5f3ff;
+    color: #7c3aed;
+    border: 1px solid #ddd6fe;
+}
+
+.modal-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.close-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 1rem;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background: #0f172a;
+    color: white;
+}
+
+/* Body */
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* Summary */
+.modal-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-summary-bar {
+    width: 3rem;
+    height: 0.25rem;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    border-radius: 999px;
+}
+
+.summary-heading {
+    font-size: 0.625rem;
+    font-weight: 900;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.summary-text {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #334155;
+    line-height: 1.7;
+}
+
+/* Tier Section */
+.modal-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tier-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tier-section-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #0f172a;
+    white-space: nowrap;
+}
+
+.tier-section-line {
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.tier-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Tier Cards */
+.tier-card {
+    border-radius: 2rem;
+    overflow: hidden;
+    position: relative;
+    border: 1.5px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transition: all 0.3s ease;
+}
+
+.tier-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.15);
+}
+
+.tier-1 {
+    border-color: #e2e8f0;
+}
+
+.tier-2 {
+    border-color: #bfdbfe;
+}
+
+.tier-3 {
+    border-color: #c4b5fd;
+}
+
+.tier-step-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.625rem;
+    font-weight: 900;
+    color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tier-card-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tier-level-label {
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.375rem;
+}
+
+.tier-header-slate {
+    color: #64748b;
+}
+
+.tier-header-blue {
+    color: #2563eb;
+}
+
+.tier-header-indigo {
+    color: #7c3aed;
+}
+
+.tier-name {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.tier-icon-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.tier-badge-slate {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.tier-badge-blue {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.tier-badge-indigo {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+/* Tier Plans */
+.tier-plans-box {
+    padding: 1rem 1.5rem;
+    background: rgba(248, 250, 252, 0.8);
+    border-top: 1px solid #f1f5f9;
+}
+
+.tier-plans-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.5rem;
+    font-weight: 900;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+}
+
+.tier-plans-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tier-plan-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    font-size: 0.625rem;
+    font-weight: 800;
+    color: #334155;
+}
+
+.tier-plan-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Inherited */
+.tier-inherited {
+    padding: 1rem 1.5rem;
+    background: rgba(248, 250, 252, 0.5);
+    border-top: 1px solid #f1f5f9;
+}
+
+.tier-sub-label {
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.625rem;
+}
+
+.tier-inherited-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.inherited-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.inherited-chip i {
+    font-size: 0.5rem;
+    color: #94a3b8;
+}
+
+/* Unique Caps */
+.tier-unique-caps {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    flex: 1;
+}
+
+.tier-cap-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.capability-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.capability-item:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.tier-item-slate:hover {
+    background: #f8fafc;
+}
+
+.tier-item-blue:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.tier-item-indigo:hover {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
+.capability-icon-box {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.tier-header-slate.capability-icon-box {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.tier-header-blue.capability-icon-box {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.tier-header-indigo.capability-icon-box {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.capability-name {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.capability-type {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.125rem;
+}
+
+/* Top Badge */
+.tier-top-badge-wrap {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.tier-top-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.35);
+}
+
+/* Unified */
+.modal-unified {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.unified-icon-box {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.35);
+}
+
+.unified-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.unified-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+/* Footer */
+.modal-footer {
+    padding: 1.5rem 2.5rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.modal-doc-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #2563eb;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+}
+
+.modal-doc-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.modal-close-btn {
+    padding: 0.875rem 2rem;
+    background: #0f172a;
+    color: white;
+    border-radius: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background: #2563eb;
+}
+
+@media (max-width: 640px) {
+    .modal-header {
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
+    .tier-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
