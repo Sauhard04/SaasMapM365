@@ -405,8 +405,43 @@
 
 .section-header {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.section-title-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.clear-selection-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: var(--red-50);
+    border: 1px solid var(--red-100);
+    color: var(--red-600);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.clear-selection-btn:hover {
+    background: var(--red-600);
+    color: var(--white);
+    border-color: var(--red-600);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.clear-selection-btn:active {
+    transform: translateY(0);
 }
 
 .section-title {

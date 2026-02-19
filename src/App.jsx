@@ -193,8 +193,19 @@ const AppContent = () => {
 
                         <section className="plan-section">
                             <div className="section-header">
-                                <h3 className="section-title">License Selection Portfolio</h3>
-                                <span className="section-hint">Select multiple to stack features</span>
+                                <div className="section-title-wrap">
+                                    <h3 className="section-title">License Selection Portfolio</h3>
+                                    <span className="section-hint">Select multiple to stack features</span>
+                                </div>
+                                {selectedPlanIds.length > 0 && (
+                                    <button
+                                        onClick={() => setSelectedPlanIds([])}
+                                        className="clear-selection-btn"
+                                    >
+                                        <i className="fas fa-trash-can"></i>
+                                        Clear All ({selectedPlanIds.length})
+                                    </button>
+                                )}
                             </div>
                             <PlanSelector selectedPlanIds={selectedPlanIds} onToggle={togglePlan} />
                         </section>
