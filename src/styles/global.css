@@ -282,6 +282,25 @@ img {
     background: var(--slate-50);
 }
 
+.modal-delete-btn {
+    padding: 1.25rem 2.5rem;
+    background: var(--red-50);
+    border: 2px solid var(--red-100);
+    color: var(--red-600);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-radius: var(--radius-xl);
+    transition: all 0.2s ease;
+}
+
+.modal-delete-btn:hover {
+    background: var(--red-600);
+    color: var(--white);
+    border-color: var(--red-600);
+}
+
 /* =============================================
    SHARED FORM STYLES
    ============================================= */

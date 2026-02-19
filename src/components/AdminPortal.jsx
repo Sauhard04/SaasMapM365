@@ -539,6 +539,21 @@ const AdminPortal = () => {
 
                         <div className="modal-footer-actions">
                             <button onClick={saveAndClosePlanModal} className="modal-save-btn">Synchronize Catalog</button>
+                            {!isAddingNew && editingPlan.id.startsWith('custom-') && (
+                                <button
+                                    type="button"
+                                    onClick={() => requestConfirm({
+                                        title: 'Delete Custom Plan?',
+                                        message: 'This will permanently remove this license from the catalog.',
+                                        actionLabel: 'Delete Plan',
+                                        variant: 'danger',
+                                        onConfirm: () => { deletePlan(editingPlan.id); setEditingPlan(null); }
+                                    })}
+                                    className="modal-delete-btn"
+                                >
+                                    Delete Plan
+                                </button>
+                            )}
                             <button onClick={handleClosePlanEditor} className="modal-cancel-btn">Cancel</button>
                         </div>
                     </div>
@@ -682,6 +697,21 @@ const AdminPortal = () => {
 
                         <div className="modal-footer-actions">
                             <button onClick={saveAndCloseFeatureModal} className="modal-save-btn">Commit to Global Catalog</button>
+                            {!isAddingNew && (
+                                <button
+                                    type="button"
+                                    onClick={() => requestConfirm({
+                                        title: 'Delete Service Capability?',
+                                        message: 'This will permanently remove this service from the catalog and all linked bundles in the matrix.',
+                                        actionLabel: 'Delete Permanently',
+                                        variant: 'danger',
+                                        onConfirm: () => { deleteFeature(editingFeature.id); setEditingFeature(null); }
+                                    })}
+                                    className="modal-delete-btn"
+                                >
+                                    Delete Service
+                                </button>
+                            )}
                             <button onClick={handleCloseFeatureEditor} className="modal-cancel-btn">Discard Blueprint</button>
                         </div>
                     </div>
