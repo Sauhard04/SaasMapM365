@@ -120,13 +120,6 @@ const FeatureMatrix = ({ plans }) => {
                         <div className="fm-coverage-badge">
                             Active Map Coverage: <span className="fm-coverage-count">{allSelectedFeatures.size} / {features.length}</span>
                         </div>
-                        <div className="fm-divider"></div>
-                        <button
-                            onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
-                            className="fm-reset-btn"
-                        >
-                            <i className="fas fa-undo"></i> Reset
-                        </button>
                     </div>
                 </div>
             </div>

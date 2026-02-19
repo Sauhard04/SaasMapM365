@@ -3,6 +3,7 @@ import PlanSelector from './components/PlanSelector.jsx';
 import FeatureMatrix from './components/FeatureMatrix.jsx';
 import ComparisonTool from './components/ComparisonTool.jsx';
 import AdminPortal from './components/AdminPortal.jsx';
+import Chatbot from './components/Chatbot.jsx';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import './styles/App.css';
 
@@ -274,6 +275,8 @@ const AppContent = () => {
                     </div>
                 </div>
             )}
+
+            <Chatbot />
         </div>
     );
 };

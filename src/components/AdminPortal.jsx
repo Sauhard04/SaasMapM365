@@ -237,7 +237,12 @@ const AdminPortal = () => {
                     ['security', 'Security & Auth'],
                     ...(currentUser.role === 'SUPER_ADMIN' ? [['users', 'Admins']] : [])
                 ].map(([tab, label]) => (
-                    <button key={tab} onClick={() => handleTabSwitch(tab)} className={`admin-tab-btn ${activeTab === tab ? 'active' : ''} ${tab === 'security' && activeTab === tab ? 'danger' : ''}`}>
+                    <button
+                        key={tab}
+                        onClick={() => handleTabSwitch(tab)}
+                        className={`admin-tab-btn ${activeTab === tab ? 'active' : ''} ${tab === 'security' && activeTab === tab ? 'danger' : ''}`}
+                        disabled={tab === 'identity' || tab === 'security'}
+                    >
                         {tab === 'identity' && <i className="fab fa-microsoft"></i>}
                         {tab === 'security' && <i className="fas fa-shield-halved"></i>}
                         {tab === 'users' && <i className="fas fa-user-shield"></i>}

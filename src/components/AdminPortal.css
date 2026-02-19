@@ -356,9 +356,15 @@
     transition: all 0.2s ease;
 }
 
-.admin-tab-btn:hover {
+.admin-tab-btn:hover:not(:disabled) {
     background: var(--slate-50);
     color: var(--slate-700);
+}
+
+.admin-tab-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
 }
 
 .admin-tab-btn.active {

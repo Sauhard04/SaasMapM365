@@ -318,7 +318,7 @@ export const DataProvider = ({ children }) => {
     return (
         <DataContext.Provider value={{
             features, plans, currentUser, allUsers, tenantInfo, billingFrequency, setBillingFrequency: setBillingFrequencyWithSync,
-            authConfig, setAuthConfig: setAuthConfigWithSync, isLoading,
+            authConfig, setAuthConfig: setAuthConfigWithSync, isLoading, API_BASE,
             updateFeature, addFeature, deleteFeature, updatePlan, addPlan, deletePlan,
             loginWithEntra, logout, approveAdmin, addUser, deleteUser, resetData, syncTenant,
             selectedPlanIds, setSelectedPlanIds: setSelectedPlanIdsWithSync,

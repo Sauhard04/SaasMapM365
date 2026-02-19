@@ -111,4 +111,62 @@ router.post('/reset', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- Chat / AI ---
+router.post('/chat', async (req, res) => {
+    try {
+        const { messages, context } = req.body;
+        const GROQ_API_KEY = process.env.grok_ai_api;
+
+        if (!GROQ_API_KEY) {
+            return res.status(500).json({ error: 'Groq API key not configured' });
+        }
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are the "Meridian M365 Senior Consultant," a highly knowledgeable, friendly, and elaborative expert in Microsoft 365 licensing.
+
+                        **Your Persona:**
+                        - You are a trusted advisor, not just a database. Be warm, welcoming, and thorough in your explanations.
+                        - When comparing plans, NEVER just give counts. Instead, explain the qualitative difference in value.
+                        
+                        **Technical Grounding:**
+                        - Ground your advice in official 'learn.microsoft.com' documentation.
+                        - Use the following real-time data from the Meridian SaaSMap database to guide your specific plan Knowledge:
+                        ${JSON.stringify(context)}
+                        
+                        **Response Structure:**
+                        1. **Warm Direct Answer**: Start with a friendly, clear confirmation of the user's query.
+                        2. **Detailed Feature Deep-Dive**: Use the actual feature names provided in the context to explain what the user gets. Don't say "E5 has 33 features"; say "E5 includes advanced capabilities like **Defender for Identity**, **Privileged Identity Management (PIM)**, and **Teams Phone** which are missing in E3."
+                        3. **Value Comparison**: Explain *why* one might choose a higher tier (e.g., "The move to E5 is typically driven by a need for automated security response and advanced compliance auditing.")
+                        4. **Official Guidance**: Conclude with a friendly invitation for more questions and a clickable link to the official Microsoft documentation for the relevant plan.
+                        
+                        **Formatting:**
+                        - Use **bold** for feature names and plan names.
+                        - Use bullet points for lists.
+                        - Use a professional yet conversational tone.`
+                    },
+                    ...messages
+                ],
+                temperature: 0.5,
+                max_tokens: 500
+            })
+        });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        console.error('Chat API Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;
