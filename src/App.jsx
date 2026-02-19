@@ -203,7 +203,7 @@ const AppContent = () => {
                                         className="clear-selection-btn"
                                     >
                                         <i className="fas fa-trash-can"></i>
-                                        Clear All ({selectedPlanIds.length})
+                                        Clear ({selectedPlanIds.length})
                                     </button>
                                 )}
                             </div>

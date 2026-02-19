@@ -290,6 +290,17 @@ export const DataProvider = ({ children }) => {
         }
     };
 
+    const addUser = async (user) => {
+        setAllUsers(prev => [...prev, user]);
+        try {
+            await fetch(`${API_BASE}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+        } catch (err) { console.error('Failed to add user:', err); }
+    };
+
     const deleteUser = async (userId) => {
         setAllUsers(prev => prev.filter(u => u.id !== userId));
         try {
@@ -309,7 +320,7 @@ export const DataProvider = ({ children }) => {
             features, plans, currentUser, allUsers, tenantInfo, billingFrequency, setBillingFrequency: setBillingFrequencyWithSync,
             authConfig, setAuthConfig: setAuthConfigWithSync, isLoading,
             updateFeature, addFeature, deleteFeature, updatePlan, addPlan, deletePlan,
-            loginWithEntra, logout, approveAdmin, deleteUser, resetData, syncTenant,
+            loginWithEntra, logout, approveAdmin, addUser, deleteUser, resetData, syncTenant,
             selectedPlanIds, setSelectedPlanIds: setSelectedPlanIdsWithSync,
         }}>
             {children}

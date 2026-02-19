@@ -280,29 +280,17 @@ const PLANS = [
 ];
 const USERS = [
     {
-        id: 'admin-1',
-        username: 'Admin',
-        password: 'Meridian123',
+        id: 'super-admin-0',
+        username: 'admin',
+        password: 'Meridian@123',
         email: 'admin@meridian.com',
         role: 'SUPER_ADMIN',
         isApproved: true,
-        jobTitle: 'Global Administrator',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
-        entraGroups: ['Global Admins', 'IT Infrastructure'],
+        jobTitle: 'System Architect',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        entraGroups: ['Global Admins'],
         tenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47',
-    },
-    {
-        id: 'admin-2',
-        username: 'meridian',
-        password: 'Meridian123',
-        email: 'support@meridian.com',
-        role: 'ADMIN',
-        isApproved: true,
-        jobTitle: 'Meridian Consultant',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=meridian',
-        entraGroups: ['Standard Admins'],
-        tenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47',
-    },
+    }
 ];
 
 export { FEATURES, PLANS, USERS };

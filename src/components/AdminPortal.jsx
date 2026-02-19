@@ -16,7 +16,7 @@ const AdminPortal = () => {
         features, plans, currentUser, allUsers, tenantInfo,
         updateFeature, addFeature, deleteFeature, updatePlan,
         addPlan, deletePlan, resetData, syncTenant,
-        authConfig, setAuthConfig,
+        authConfig, setAuthConfig, addUser, deleteUser
     } = useData();
 
     const [activeTab, setActiveTab] = useState('features');
@@ -32,6 +32,8 @@ const AdminPortal = () => {
     const [selectedTierIndices, setSelectedTierIndices] = useState([]);
     const [bulkInput, setBulkInput] = useState('');
     const [localAuth, setLocalAuth] = useState(authConfig);
+    const [isUserEditorOpen, setIsUserEditorOpen] = useState(false);
+    const [newAdmin, setNewAdmin] = useState({ username: '', password: '', role: 'ADMIN' });
 
     useEffect(() => { setLocalAuth(authConfig); }, [authConfig]);
     useEffect(() => { setIsDirty(!!(editingFeature || editingPlan)); }, [editingFeature, editingPlan]);
@@ -223,31 +225,22 @@ const AdminPortal = () => {
                     </div>
                 </div>
 
-                <div className="admin-header-actions">
-                    <div className="sync-status-box">
-                        <div className="sync-status-info">
-                            <span className="sync-status-label">Entra ID Status</span>
-                            <div className="sync-status-row">
-                                <div className={`sync-dot ${tenantInfo.syncStatus === 'Healthy' ? 'healthy' : 'error'}`}></div>
-                                <span className="sync-status-text">{tenantInfo.syncStatus}</span>
-                            </div>
-                        </div>
-                        <button onClick={handleSync} disabled={isSyncing} className={`sync-btn ${isSyncing ? 'spinning' : ''}`}>
-                            <i className="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    <button onClick={() => requestConfirm({ title: 'System Reset', message: 'Reverting all configurations to factory defaults. Continue?', actionLabel: 'Revert All', variant: 'danger', onConfirm: resetData })} className="reset-btn">
-                        Factory Reset
-                    </button>
-                </div>
+
             </div>
 
             {/* Tabs */}
             <div className="admin-tabs">
-                {[['features', 'Services'], ['plans', 'Bundles'], ['identity', 'Sync'], ['security', 'Security & Auth']].map(([tab, label]) => (
+                {[
+                    ['features', 'Services'],
+                    ['plans', 'Bundles'],
+                    ['identity', 'Sync'],
+                    ['security', 'Security & Auth'],
+                    ...(currentUser.role === 'SUPER_ADMIN' ? [['users', 'Admins']] : [])
+                ].map(([tab, label]) => (
                     <button key={tab} onClick={() => handleTabSwitch(tab)} className={`admin-tab-btn ${activeTab === tab ? 'active' : ''} ${tab === 'security' && activeTab === tab ? 'danger' : ''}`}>
                         {tab === 'identity' && <i className="fab fa-microsoft"></i>}
                         {tab === 'security' && <i className="fas fa-shield-halved"></i>}
+                        {tab === 'users' && <i className="fas fa-user-shield"></i>}
                         {label}
                     </button>
                 ))}
@@ -345,6 +338,63 @@ const AdminPortal = () => {
                                     <button className="identity-manage-btn">Manage Directory</button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* User Management Tab */}
+                {activeTab === 'users' && currentUser.role === 'SUPER_ADMIN' && (
+                    <div className="admin-tab-content">
+                        <div className="plans-tab-header">
+                            <div>
+                                <h3 className="admin-section-title">Administrator Directory</h3>
+                                <p className="admin-section-desc">Manage system access and roles for technical administrators.</p>
+                            </div>
+                            <button onClick={() => setIsUserEditorOpen(true)} className="admin-add-btn">
+                                <i className="fas fa-plus"></i> New Administrator
+                            </button>
+                        </div>
+
+                        <div className="admin-table-container">
+                            <table className="admin-users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Password</th>
+                                        <th>Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allUsers.map((u) => (
+                                        <tr key={u.id}>
+                                            <td className="user-name-cell">
+                                                <img src={u.avatar} className="user-table-avatar" />
+                                                {u.username}
+                                            </td>
+                                            <td className="user-pass-cell"><code>{u.password}</code></td>
+                                            <td><span className={`role-badge ${u.role}`}>{u.role}</span></td>
+
+                                            <td>
+                                                {u.username !== currentUser.username && (
+                                                    <button
+                                                        onClick={() => requestConfirm({
+                                                            title: 'Revoke Access?',
+                                                            message: `This will permanently delete ${u.username}'s administrator profile.`,
+                                                            actionLabel: 'Delete Admin',
+                                                            variant: 'danger',
+                                                            onConfirm: () => deleteUser(u.id)
+                                                        })}
+                                                        className="user-delete-btn"
+                                                    >
+                                                        <i className="fas fa-trash-alt"></i>
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}
@@ -713,6 +763,88 @@ const AdminPortal = () => {
                                 </button>
                             )}
                             <button onClick={handleCloseFeatureEditor} className="modal-cancel-btn">Discard Blueprint</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* New User Modal */}
+            {isUserEditorOpen && (
+                <div className="overlay-modal">
+                    <div className="modal-content small custom-scrollbar">
+                        <div className="modal-sticky-header">
+                            <div className="modal-title-row">
+                                <div className="modal-icon-box" style={{ background: '#2563eb' }}>
+                                    <i className="fas fa-user-plus"></i>
+                                </div>
+                                <div>
+                                    <h3 className="modal-main-title">Admin Registration</h3>
+                                    <p className="modal-sub-title">Deploying new system credentials</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsUserEditorOpen(false)} className="close-btn"><i className="fas fa-times"></i></button>
+                        </div>
+
+                        <div className="user-editor-form">
+                            <div className="form-group">
+                                <label className="form-label">Username</label>
+                                <div className="login-input-wrap">
+                                    <i className="fas fa-user"></i>
+                                    <input
+                                        type="text"
+                                        value={newAdmin.username}
+                                        onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                                        className="form-input"
+                                        placeholder="e.g. jdoe"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
+                                <div className="login-input-wrap">
+                                    <i className="fas fa-key"></i>
+                                    <input
+                                        type="text"
+                                        value={newAdmin.password}
+                                        onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                                        className="form-input"
+                                        placeholder="Secure Passphrase"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Access Level</label>
+                                <select
+                                    className="form-input"
+                                    value={newAdmin.role}
+                                    onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+                                >
+                                    <option value="ADMIN">Administrator</option>
+                                    <option value="SUPER_ADMIN">Super Administrator</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer-actions">
+                            <button
+                                onClick={() => {
+                                    if (!newAdmin.username || !newAdmin.password) return alert('Fill all fields');
+                                    addUser({
+                                        ...newAdmin,
+                                        id: `manual-${Date.now()}`,
+                                        isApproved: true,
+                                        jobTitle: newAdmin.role === 'SUPER_ADMIN' ? 'Global Admin' : 'IT Admin',
+                                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newAdmin.username}`,
+                                        tenantId: tenantInfo.tenantId,
+                                        email: `${newAdmin.username}@meridian.com`
+                                    });
+                                    setIsUserEditorOpen(false);
+                                    setNewAdmin({ username: '', password: '', role: 'ADMIN' });
+                                }}
+                                className="modal-save-btn"
+                            >
+                                Provision Account
+                            </button>
+                            <button onClick={() => setIsUserEditorOpen(false)} className="modal-cancel-btn">Cancel</button>
                         </div>
                     </div>
                 </div>
