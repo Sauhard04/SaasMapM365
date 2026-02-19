@@ -700,34 +700,155 @@
 /* =============================================
    RESPONSIVE
    ============================================= */
-@media (max-width: 768px) {
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+/* Large Tablets & Small Laptops (under 1024px) */
+@media (max-width: 1024px) {
     .header-content {
-        padding: 0 1rem;
+        height: auto;
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
     }
 
     .nav-container {
-        gap: 0.5rem;
+        width: 100%;
+        order: 3;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .hero-section {
+        padding: 2rem;
+    }
+
+    .hero-title {
+        font-size: 2.25rem;
+    }
+}
+
+/* Mobile Devices (under 768px) */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 1rem;
+    }
+
+    .nav-container {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+        scrollbar-width: none;
+        /* Hide scrollbar for Chrome/Safari */
+    }
+
+    .nav-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-pill-group {
+        padding: 0.125rem;
+    }
+
+    .nav-pill {
+        padding: 0.5rem 1rem;
+        font-size: 0.7rem;
     }
 
     .billing-toggle {
         display: none;
+        /* Or simplify */
+    }
+
+    .user-text {
+        display: none;
+        /* Only show avatar on small mobile */
     }
 
     .main-content {
-        padding: 1.5rem 1rem 4rem;
+        padding: 1.25rem 1rem 4rem;
     }
 
     .hero-section {
-        padding: 1.75rem;
-        border-radius: 1.75rem;
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+        text-align: center;
+    }
+
+    .hero-top {
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-right {
+        align-items: center;
+        margin-top: 1rem;
     }
 
     .hero-stats {
-        gap: 1.25rem;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
     }
 
     .total-usd,
     .count-number {
         font-size: 1.5rem;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .clear-selection-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .login-modal {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .ms-icon-box {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.25rem;
+    }
+}
+
+/* Small Phones (under 480px) */
+@media (max-width: 480px) {
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
+    .total-usd,
+    .count-number {
+        font-size: 1.25rem;
+    }
+
+    .logo-subtitle {
+        display: none;
     }
 }
