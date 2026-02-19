@@ -120,14 +120,14 @@
     gap: 0.25rem;
     background: var(--slate-100);
     padding: 0.25rem;
-    border-radius: 0.875rem;
+    border-radius: 1rem;
 }
 
 .billing-button {
-    padding: 0.375rem 0.875rem;
-    border-radius: 0.625rem;
-    font-size: 0.625rem;
-    font-weight: 900;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--slate-400);
@@ -739,34 +739,61 @@
     }
 
     .nav-container {
+        display: flex;
         overflow-x: auto;
         justify-content: flex-start;
-        padding-bottom: 0.5rem;
-        scrollbar-width: none;
-        /* Hide scrollbar for Chrome/Safari */
+        padding: 0.75rem 1.5rem;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--slate-300) transparent;
     }
 
     .nav-container::-webkit-scrollbar {
-        display: none;
+        height: 4px;
+        /* Thin horizontal scrollbar */
+        display: block;
+    }
+
+    .nav-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .nav-container::-webkit-scrollbar-thumb {
+        background: var(--slate-300);
+        border-radius: 10px;
     }
 
     .nav-pill-group {
-        padding: 0.125rem;
+        padding: 0.25rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
     }
 
     .nav-pill {
-        padding: 0.5rem 1rem;
-        font-size: 0.7rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.65rem;
+        flex-shrink: 0;
     }
 
     .billing-toggle {
-        display: none;
-        /* Or simplify */
+        display: flex;
+        margin: 0.5rem 0;
+    }
+
+    .billing-button {
+        font-size: 0.65rem;
+        padding: 0.625rem 1.25rem;
     }
 
     .user-text {
-        display: none;
-        /* Only show avatar on small mobile */
+        font-size: 0.65rem;
+        line-height: 1;
+    }
+
+    .user-name {
+        font-size: 0.7rem;
     }
 
     .main-content {
@@ -849,6 +876,7 @@
     }
 
     .logo-subtitle {
-        display: none;
+        font-size: 0.5rem;
+        opacity: 0.6;
     }
 }

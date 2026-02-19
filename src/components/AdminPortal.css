@@ -336,8 +336,8 @@
     gap: 0.5rem;
     flex-wrap: wrap;
     background: var(--white);
-    padding: 0.5rem;
-    border-radius: 1.5rem;
+    padding: 0.25rem;
+    border-radius: 1rem;
     border: 1px solid var(--slate-200);
     box-shadow: var(--shadow-sm);
 }
@@ -346,12 +346,12 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 1rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.75rem;
     font-size: 0.75rem;
-    font-weight: 900;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.1rem;
     color: var(--slate-400);
     transition: all 0.2s ease;
 }
@@ -1919,9 +1919,9 @@
     .admin-tab-btn {
         flex: 1;
         min-width: calc(50% - 0.5rem);
-        padding: 0.625rem 1rem;
+        padding: 0.625rem 1.25rem;
         justify-content: center;
-        font-size: 0.625rem;
+        font-size: 0.65rem;
     }
 
     .admin-tab-content {
