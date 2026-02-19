@@ -31,65 +31,60 @@ const getInitialAuth = () => ({
     isProduction: false,
 });
 
+const API_BASE = 'http://localhost:5000/api';
+
 export const DataProvider = ({ children }) => {
-    const [features, setFeatures] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.FEATURES);
-        return saved ? JSON.parse(saved) : INITIAL_FEATURES;
-    });
-
-    const [plans, setPlans] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.PLANS);
-        return saved ? JSON.parse(saved) : INITIAL_PLANS;
-    });
-
-    const [tenantInfo, setTenantInfo] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.TENANT);
-        return saved ? JSON.parse(saved) : MOCK_TENANT;
-    });
-
-    const [billingFrequency, setBillingFrequency] = useState(() => {
-        return localStorage.getItem(STORAGE_KEYS.BILLING) || 'monthly';
-    });
-
-    const [authConfig, setAuthConfig] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.AUTH);
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (!parsed.redirectUri) parsed.redirectUri = window.location.origin;
-            return parsed;
-        }
-        return getInitialAuth();
-    });
-
-    const [allUsers, setAllUsers] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-        const defaultUsers = [
-            {
-                id: 'entra-1',
-                username: 'Megan Bowen',
-                email: 'meganb@contoso.com',
-                role: 'SUPER_ADMIN',
-                isApproved: true,
-                jobTitle: 'Global Administrator',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Megan',
-                entraGroups: ['Global Admins', 'IT Infrastructure'],
-                tenantId: MOCK_TENANT.tenantId,
-            },
-        ];
-        return saved ? JSON.parse(saved) : defaultUsers;
-    });
-
+    const [features, setFeatures] = useState(INITIAL_FEATURES);
+    const [plans, setPlans] = useState(INITIAL_PLANS);
+    const [tenantInfo, setTenantInfo] = useState(MOCK_TENANT);
+    const [billingFrequency, setBillingFrequency] = useState('monthly');
+    const [authConfig, setAuthConfig] = useState(getInitialAuth());
+    const [selectedPlanIds, setSelectedPlanIds] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.CURR_USER);
         return saved ? JSON.parse(saved) : null;
     });
 
-    const [selectedPlanIds, setSelectedPlanIds] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_PLANS);
-        if (saved) return JSON.parse(saved);
-        const initialPlans = INITIAL_PLANS;
-        return initialPlans.length > 2 ? [initialPlans[2].id] : initialPlans[0] ? [initialPlans[0].id] : [];
-    });
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initial Fetch
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [featRes, planRes, configRes, userRes] = await Promise.all([
+                    fetch(`${API_BASE}/features`),
+                    fetch(`${API_BASE}/plans`),
+                    fetch(`${API_BASE}/config`),
+                    fetch(`${API_BASE}/users`)
+                ]);
+
+                const feats = await featRes.json();
+                const pls = await planRes.json();
+                const config = await configRes.json();
+                const users = await userRes.json();
+
+                if (feats && feats.length) setFeatures(feats);
+                if (pls && pls.length) setPlans(pls);
+                if (users && users.length) setAllUsers(users);
+
+                if (config) {
+                    if (config.auth) setAuthConfig({ ...getInitialAuth(), ...config.auth });
+                    if (config.tenant) setTenantInfo(config.tenant);
+                    if (config.billingFrequency) setBillingFrequency(config.billingFrequency);
+                    if (config.selectedPlanIds) setSelectedPlanIds(config.selectedPlanIds);
+                } else {
+                    // Initialize default plan selection if no config
+                    setSelectedPlanIds(INITIAL_PLANS.length > 2 ? [INITIAL_PLANS[2].id] : INITIAL_PLANS[0] ? [INITIAL_PLANS[0].id] : []);
+                }
+            } catch (err) {
+                console.error('Failed to fetch data from MongoDB:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const msalInstance = useMemo(() => {
         if (!authConfig.isProduction || !authConfig.clientId) return null;
@@ -104,23 +99,94 @@ export const DataProvider = ({ children }) => {
     }, [authConfig]);
 
     useEffect(() => { if (msalInstance) msalInstance.initialize(); }, [msalInstance]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.FEATURES, JSON.stringify(features)); }, [features]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(plans)); }, [plans]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(allUsers)); }, [allUsers]);
     useEffect(() => { localStorage.setItem(STORAGE_KEYS.CURR_USER, JSON.stringify(currentUser)); }, [currentUser]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.TENANT, JSON.stringify(tenantInfo)); }, [tenantInfo]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.BILLING, billingFrequency); }, [billingFrequency]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(authConfig)); }, [authConfig]);
-    useEffect(() => { localStorage.setItem(STORAGE_KEYS.SELECTED_PLANS, JSON.stringify(selectedPlanIds)); }, [selectedPlanIds]);
 
-    const updateFeature = (updated) => setFeatures(prev => prev.map(f => f.id === updated.id ? JSON.parse(JSON.stringify(updated)) : f));
-    const addFeature = (newFeature) => setFeatures(prev => [...prev, newFeature]);
-    const deleteFeature = (id) => setFeatures(prev => prev.filter(f => f.id !== id));
-    const updatePlan = (updated) => setPlans(prev => prev.map(p => p.id === updated.id ? JSON.parse(JSON.stringify(updated)) : p));
-    const addPlan = (newPlan) => setPlans(prev => [...prev, newPlan]);
-    const deletePlan = (id) => setPlans(prev => prev.filter(p => p.id !== id));
+    // Data Sync Helpers
+    const syncConfig = async (update) => {
+        try {
+            await fetch(`${API_BASE}/config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(update)
+            });
+        } catch (err) { console.error('Failed to sync config:', err); }
+    };
 
-    const loginWithEntra = async (requestedRole = 'USER') => {
+    const updateFeature = async (updated) => {
+        setFeatures(prev => prev.map(f => f.id === updated.id ? JSON.parse(JSON.stringify(updated)) : f));
+        try {
+            await fetch(`${API_BASE}/features`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated)
+            });
+        } catch (err) { console.error('Failed to update feature:', err); }
+    };
+
+    const addFeature = async (newFeature) => {
+        setFeatures(prev => [...prev, newFeature]);
+        try {
+            await fetch(`${API_BASE}/features`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newFeature)
+            });
+        } catch (err) { console.error('Failed to add feature:', err); }
+    };
+
+    const deleteFeature = async (id) => {
+        setFeatures(prev => prev.filter(f => f.id !== id));
+        try {
+            await fetch(`${API_BASE}/features/${id}`, { method: 'DELETE' });
+        } catch (err) { console.error('Failed to delete feature:', err); }
+    };
+
+    const updatePlan = async (updated) => {
+        setPlans(prev => prev.map(p => p.id === updated.id ? JSON.parse(JSON.stringify(updated)) : p));
+        try {
+            await fetch(`${API_BASE}/plans`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated)
+            });
+        } catch (err) { console.error('Failed to update plan:', err); }
+    };
+
+    const addPlan = async (newPlan) => {
+        setPlans(prev => [...prev, newPlan]);
+        try {
+            await fetch(`${API_BASE}/plans`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newPlan)
+            });
+        } catch (err) { console.error('Failed to add plan:', err); }
+    };
+
+    const deletePlan = async (id) => {
+        setPlans(prev => prev.filter(p => p.id !== id));
+        try {
+            await fetch(`${API_BASE}/plans/${id}`, { method: 'DELETE' });
+        } catch (err) { console.error('Failed to delete plan:', err); }
+    };
+
+    const setBillingFrequencyWithSync = (freq) => {
+        setBillingFrequency(freq);
+        syncConfig({ billingFrequency: freq });
+    };
+
+    const setAuthConfigWithSync = (auth) => {
+        setAuthConfig(auth);
+        syncConfig({ auth });
+    };
+
+    const setSelectedPlanIdsWithSync = (ids) => {
+        const val = typeof ids === 'function' ? ids(selectedPlanIds) : ids;
+        setSelectedPlanIds(val);
+        syncConfig({ selectedPlanIds: val });
+    };
+
+    const loginWithEntra = async (requestedRole = 'USER', credentials = null) => {
         if (authConfig.isProduction && msalInstance) {
             try {
                 const loginResponse = await msalInstance.loginPopup({ scopes: ['User.Read'] });
@@ -135,9 +201,23 @@ export const DataProvider = ({ children }) => {
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${account.username}`,
                     tenantId: account.tenantId,
                 };
-                setAllUsers(prev => prev.find(u => u.email === entraUser.email) ? prev : [...prev, entraUser]);
+
+                setAllUsers(prev => {
+                    const exists = prev.find(u => u.email === entraUser.email);
+                    if (!exists) {
+                        fetch(`${API_BASE}/users`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(entraUser)
+                        });
+                        return [...prev, entraUser];
+                    }
+                    return prev;
+                });
                 setCurrentUser(entraUser);
-                setTenantInfo(prev => ({ ...prev, tenantId: account.tenantId, name: 'Production Tenant', syncStatus: 'Healthy' }));
+                const newTenant = { ...tenantInfo, tenantId: account.tenantId, name: 'Production Tenant', syncStatus: 'Healthy' };
+                setTenantInfo(newTenant);
+                syncConfig({ tenant: newTenant });
             } catch (err) {
                 console.error('Entra ID Production Login Error:', err);
                 throw err;
@@ -145,39 +225,92 @@ export const DataProvider = ({ children }) => {
             return;
         }
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             setTimeout(() => {
+                if (credentials) {
+                    const user = allUsers.find(u => u.username === credentials.username && u.password === credentials.password);
+                    if (user) {
+                        setCurrentUser(user);
+                        resolve();
+                    } else {
+                        reject(new Error('Invalid credentials'));
+                    }
+                    return;
+                }
+
                 const entraUser = {
                     id: `entra-${Math.random().toString(36).substr(2, 9)}`,
-                    username: requestedRole === 'SUPER_ADMIN' ? 'Megan Bowen' : 'Adele Vance',
-                    email: requestedRole === 'SUPER_ADMIN' ? 'meganb@contoso.com' : 'adelev@contoso.com',
+                    username: requestedRole === 'SUPER_ADMIN' ? 'Admin' : 'IT Admin',
+                    email: requestedRole === 'SUPER_ADMIN' ? 'admin@meridian.com' : 'itadmin@meridian.com',
                     role: requestedRole,
                     isApproved: true,
-                    jobTitle: requestedRole === 'SUPER_ADMIN' ? 'Global Administrator' : 'IT Compliance Officer',
+                    jobTitle: requestedRole === 'SUPER_ADMIN' ? 'Global Administrator' : 'IT Systems Manager',
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${requestedRole}`,
-                    entraGroups: requestedRole === 'SUPER_ADMIN' ? ['Global Admins'] : ['Compliance Admins'],
+                    entraGroups: requestedRole === 'SUPER_ADMIN' ? ['Global Admins'] : ['IT Admins'],
                     tenantId: tenantInfo.tenantId,
                 };
-                setAllUsers(prev => prev.find(u => u.email === entraUser.email) ? prev : [...prev, entraUser]);
+
+                setAllUsers(prev => {
+                    const exists = prev.find(u => u.email === entraUser.email);
+                    if (!exists) {
+                        fetch(`${API_BASE}/users`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(entraUser)
+                        });
+                        return [...prev, entraUser];
+                    }
+                    return prev;
+                });
                 setCurrentUser(entraUser);
                 resolve();
-            }, 1500);
+            }, 1000);
         });
     };
 
-    const syncTenant = () => setTenantInfo(prev => ({ ...prev, lastSync: new Date().toISOString(), syncStatus: 'Healthy' }));
+    const syncTenant = () => {
+        const newTenant = { ...tenantInfo, lastSync: new Date().toISOString(), syncStatus: 'Healthy' };
+        setTenantInfo(newTenant);
+        syncConfig({ tenant: newTenant });
+    };
+
     const logout = () => { if (authConfig.isProduction && msalInstance) msalInstance.logoutPopup(); setCurrentUser(null); };
-    const approveAdmin = (userId) => setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, isApproved: true } : u));
-    const deleteUser = (userId) => setAllUsers(prev => prev.filter(u => u.id !== userId));
-    const resetData = () => { setFeatures(INITIAL_FEATURES); setPlans(INITIAL_PLANS); setAuthConfig(getInitialAuth()); };
+
+    const approveAdmin = async (userId) => {
+        setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, isApproved: true } : u));
+        const user = allUsers.find(u => u.id === userId);
+        if (user) {
+            try {
+                await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...user, isApproved: true })
+                });
+            } catch (err) { console.error('Failed to approve user:', err); }
+        }
+    };
+
+    const deleteUser = async (userId) => {
+        setAllUsers(prev => prev.filter(u => u.id !== userId));
+        try {
+            await fetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
+        } catch (err) { console.error('Failed to delete user:', err); }
+    };
+
+    const resetData = async () => {
+        try {
+            await fetch(`${API_BASE}/reset`, { method: 'POST' });
+            window.location.reload(); // Refresh to get seeded data
+        } catch (err) { console.error('Failed to reset data:', err); }
+    };
 
     return (
         <DataContext.Provider value={{
-            features, plans, currentUser, allUsers, tenantInfo, billingFrequency, setBillingFrequency,
-            authConfig, setAuthConfig,
+            features, plans, currentUser, allUsers, tenantInfo, billingFrequency, setBillingFrequency: setBillingFrequencyWithSync,
+            authConfig, setAuthConfig: setAuthConfigWithSync, isLoading,
             updateFeature, addFeature, deleteFeature, updatePlan, addPlan, deletePlan,
             loginWithEntra, logout, approveAdmin, deleteUser, resetData, syncTenant,
-            selectedPlanIds, setSelectedPlanIds,
+            selectedPlanIds, setSelectedPlanIds: setSelectedPlanIdsWithSync,
         }}>
             {children}
         </DataContext.Provider>

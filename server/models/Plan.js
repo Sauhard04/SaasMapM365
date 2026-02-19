@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const PlanSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true },
@@ -13,4 +13,4 @@ const PlanSchema = new mongoose.Schema({
     features: [{ type: String }], // Array of Feature IDs
 }, { timestamps: true });
 
-module.exports = mongoose.model('Plan', PlanSchema);
+export default mongoose.model('Plan', PlanSchema);

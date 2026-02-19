@@ -43,8 +43,8 @@
 }
 
 .status-dot.active {
-    background: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05), 0 0 12px var(--glow-color);
+    opacity: 1;
 }
 
 /* Plan Name */

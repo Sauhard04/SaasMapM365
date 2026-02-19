@@ -97,7 +97,7 @@ const ComparisonTool = () => {
                                     >
                                         <span
                                             className="plan-dot"
-                                            style={{ backgroundColor: isSelected ? '#fff' : p.color }}
+                                            style={{ backgroundColor: p.color }}
                                         ></span>
                                         {p.name}
                                     </button>

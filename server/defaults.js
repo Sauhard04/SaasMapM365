@@ -278,5 +278,19 @@ const PLANS = [
         features: ['p1', 'p2', 'p3', 'p4', 'v1', 'v2', 'v3', 's4', 's6', 's7', 'c1', 'm2', 'm3', 'm4'],
     },
 ];
+const USERS = [
+    {
+        id: 'admin-1',
+        username: 'Admin',
+        password: 'Meridian123',
+        email: 'admin@meridian.com',
+        role: 'SUPER_ADMIN',
+        isApproved: true,
+        jobTitle: 'Global Administrator',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+        entraGroups: ['Global Admins', 'IT Infrastructure'],
+        tenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47',
+    },
+];
 
-module.exports = { FEATURES, PLANS };
+export { FEATURES, PLANS, USERS };

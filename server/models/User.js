@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true },
     username: { type: String, required: true },
     email: { type: String, required: true },
+    password: { type: String }, // For local admin login
     role: { type: String, required: true },
     isApproved: { type: Boolean, default: false },
     jobTitle: { type: String },
@@ -12,4 +13,4 @@ const UserSchema = new mongoose.Schema({
     tenantId: { type: String },
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

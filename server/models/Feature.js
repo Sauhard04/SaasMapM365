@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const TierSchema = new mongoose.Schema({
     tierName: { type: String, required: true },
@@ -20,4 +20,4 @@ const FeatureSchema = new mongoose.Schema({
     tierComparison: TierComparisonSchema,
 }, { timestamps: true });
 
-module.exports = mongoose.model('Feature', FeatureSchema);
+export default mongoose.model('Feature', FeatureSchema);

@@ -1,10 +1,10 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Feature = require('../models/Feature');
-const Plan = require('../models/Plan');
-const Configuration = require('../models/Configuration');
-const User = require('../models/User');
-const { FEATURES, PLANS } = require('../defaults');
+import Feature from '../models/Feature.js';
+import Plan from '../models/Plan.js';
+import Configuration from '../models/Configuration.js';
+import User from '../models/User.js';
+import { FEATURES, PLANS, USERS } from '../defaults.js';
 
 // --- Features ---
 router.get('/features', async (req, res) => {
@@ -100,14 +100,15 @@ router.post('/reset', async (req, res) => {
         await Feature.deleteMany({});
         await Plan.deleteMany({});
         await Configuration.deleteMany({});
-        await User.deleteMany({}); // Optional: Reset users too? Usually yes for factory reset.
+        await User.deleteMany({});
 
         await Feature.insertMany(FEATURES);
         await Plan.insertMany(PLANS);
+        await User.insertMany(USERS);
         // Config will be re-created on first access with defaults defined in Schema
 
         res.json({ success: true, message: 'Factory reset complete' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-module.exports = router;
+export default router;

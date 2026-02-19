@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const AuthConfigSchema = new mongoose.Schema({
     clientId: { type: String, default: '' },
@@ -24,4 +24,4 @@ const ConfigurationSchema = new mongoose.Schema({
     selectedPlanIds: [{ type: String }],
 }, { timestamps: true });
 
-module.exports = mongoose.model('Configuration', ConfigurationSchema);
+export default mongoose.model('Configuration', ConfigurationSchema);

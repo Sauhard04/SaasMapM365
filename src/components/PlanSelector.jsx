@@ -20,7 +20,10 @@ const PlanSelector = ({ selectedPlanIds, onToggle }) => {
                     >
                         <div
                             className={`status-dot ${isSelected ? 'active' : ''}`}
-                            style={!isSelected ? { backgroundColor: plan.color } : {}}
+                            style={{
+                                backgroundColor: plan.color,
+                                '--glow-color': plan.color
+                            }}
                         />
                         <span className="plan-card-name">{plan.name}</span>
                         <div className="plan-card-pricing">

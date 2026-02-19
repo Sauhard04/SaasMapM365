@@ -18,10 +18,14 @@ const AppContent = () => {
     const {
         plans, currentUser, loginWithEntra, logout, tenantInfo,
         billingFrequency, setBillingFrequency,
-        selectedPlanIds, setSelectedPlanIds,
+        selectedPlanIds, setSelectedPlanIds, isLoading
     } = useData();
+
     const [showLogin, setShowLogin] = useState(false);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
 
     const togglePlan = (id) => {
         setSelectedPlanIds((prev) =>
@@ -46,14 +50,27 @@ const AppContent = () => {
 
     const uniqueFeaturesCount = new Set(selectedPlans.flatMap((p) => p.features)).size;
 
-    const handleMicrosoftLogin = async (role) => {
+    if (isLoading) {
+        return (
+            <div className="loading-screen">
+                <div className="loader"></div>
+                <p>Establishing Connection to Matrix DB...</p>
+            </div>
+        );
+    }
+
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
         setIsLoggingIn(true);
+        setLoginError('');
         try {
-            await loginWithEntra(role);
+            await loginWithEntra(null, { username, password });
             setShowLogin(false);
             setActiveTab('admin');
+            setUsername('');
+            setPassword('');
         } catch (err) {
-            console.error('Login failed:', err);
+            setLoginError('Invalid Administrator Credentials');
         } finally {
             setIsLoggingIn(false);
         }
@@ -61,7 +78,8 @@ const AppContent = () => {
 
     return (
         <div className="app-container">
-            {/* Header */}
+            {/* ... header and main content ... */}
+            {/* I will keep the existing header and main content, just updating the login modal below */}
             <header className="app-header glass-morphism">
                 <div className="header-content">
                     <div className="logo-container">
@@ -120,7 +138,6 @@ const AppContent = () => {
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="main-content">
                 {activeTab === 'admin' ? (
                     <AdminPortal />
@@ -195,29 +212,52 @@ const AppContent = () => {
                 )}
             </main>
 
-
-            {/* Login Modal */}
             {showLogin && (
                 <div className="modal-overlay" onClick={() => setShowLogin(false)}>
                     <div className="login-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="login-modal-header">
                             <div className="ms-icon-box">
-                                <i className="fab fa-microsoft"></i>
+                                <i className="fas fa-shield-halved"></i>
                             </div>
                             <h3 className="login-title">Admin Gateway</h3>
-                            <p className="login-subtitle">Select your Entra ID simulation role to access the configuration portal.</p>
+                            <p className="login-subtitle">Enter your administrator credentials to access the configuration portal.</p>
                         </div>
 
-                        <div className="login-buttons">
-                            <button onClick={() => handleMicrosoftLogin('SUPER_ADMIN')} disabled={isLoggingIn} className="login-btn primary">
-                                {isLoggingIn ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-user-shield"></i>}
-                                Global Administrator
+                        <form onSubmit={handleLoginSubmit} className="login-form">
+                            <div className="login-field">
+                                <label>Username</label>
+                                <div className="login-input-wrap">
+                                    <i className="fas fa-user"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Admin"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="login-field">
+                                <label>Password</label>
+                                <div className="login-input-wrap">
+                                    <i className="fas fa-lock"></i>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {loginError && <p className="login-error-msg">{loginError}</p>}
+
+                            <button type="submit" disabled={isLoggingIn} className="login-btn primary">
+                                {isLoggingIn ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-right-to-bracket"></i>}
+                                Sign In
                             </button>
-                            <button onClick={() => handleMicrosoftLogin('ADMIN')} disabled={isLoggingIn} className="login-btn secondary">
-                                {isLoggingIn ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-user-gear"></i>}
-                                Standard IT Admin
-                            </button>
-                        </div>
+                        </form>
 
                         <button onClick={() => setShowLogin(false)} className="login-cancel">Cancel</button>
                     </div>
