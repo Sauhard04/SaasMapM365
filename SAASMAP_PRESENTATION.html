@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaSMap M365 Navigator - Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.4);
+            --secondary: #7c3aed;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 40%);
+        }
+
+        /* Slide System */
+        .presentation-container {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* Card Decoration */
+        .content-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 4rem;
+            max-width: 1000px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--text-dim) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slide-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            color: var(--text-main);
+            animation: fadeInRight 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        li i {
+            color: var(--primary);
+            margin-top: 0.35rem;
+            font-size: 1.25rem;
+        }
+
+        li strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Specific Layouts */
+        .title-slide {
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: 5.5rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .stack-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stack-item h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stack-item p {
+            color: var(--text-dim);
+            font-size: 1.125rem;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 3rem;
+            right: 3rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        button.control-btn {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        button.control-btn:hover {
+            background: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .progress-bar-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 3.8rem;
+            left: 3rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-card {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2.5rem !important;
+            }
+
+            h2 {
+                font-size: 1.75rem;
+            }
+
+            li {
+                font-size: 1.1rem;
+            }
+
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active" id="slide-1">
+            <div class="content-card title-slide">
+                <h2 style="justify-content: center; margin-bottom: 0;"><i class="fas fa-map-location-dot"></i> SaaSMap
+                </h2>
+                <h1>M365 Navigator</h1>
+                <p class="slide-subtitle">Premium Interactive Platform for Microsoft 365 License Optimization</p>
+                <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem;">
+                    <div class="stack-item">
+                        <h3>Objective</h3>
+                        <p>Comparison & Guidance</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Target</h3>
+                        <p>IT Admins & MSPs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide" id="slide-2">
+            <div class="content-card">
+                <h2><i class="fas fa-triangle-exclamation"></i> The Problem</h2>
+                <ul id="list-2">
+                    <li style="animation-delay: 0.1s;"><i class="fas fa-circle-nodes"></i> <span><strong>Licensing
+                                Complexity:</strong> Hundreds of features across Business, Enterprise, and Frontline
+                            families.</span></li>
+                    <li style="animation-delay: 0.2s;"><i class="fas fa-money-bill-trend-up"></i> <span><strong>Cost
+                                Inefficiency:</strong> Overpaying for tiers (E5) when features are available in lower
+                            plans.</span></li>
+                    <li style="animation-delay: 0.3s;"><i class="fas fa-book-open-reader"></i> <span><strong>Information
+                                Overload:</strong> Dense documentation makes side-by-side comparison impossible.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Core Solution -->
+        <div class="slide" id="slide-3">
+            <div class="content-card">
+                <h2><i class="fas fa-lightbulb"></i> Value Proposition</h2>
+                <div class="grid-layout">
+                    <div class="stack-item">
+                        <h3>Visual Mapping</h3>
+                        <p>High-level architectural overview of plan hierarchies.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Granular Matrix</h3>
+                        <p>Feature-by-feature mapping with direct official links.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>AI Powered Advisor</h3>
+                        <p>Context-aware advisor grounded in real-time MS docs.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Live Sync</h3>
+                        <p>Automated parity with official service descriptions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Feature Matrix -->
+        <div class="slide" id="slide-4">
+            <div class="content-card">
+                <h2><i class="fas fa-table-cells"></i> Feature Matrix</h2>
+                <ul>
+                    <li style="animation-delay: 0.1s;"><i class="fas fa-filter"></i> <span><strong>Intelligent
+                                Filtering:</strong> Search or filter by Security, Compliance, or Apps.</span></li>
+                    <li style="animation-delay: 0.2s;"><i class="fas fa-layer-group"></i> <span><strong>Differential
+                                View:</strong> Highlight only what's <em>different</em> between plans.</span></li>
+                    <li style="animation-delay: 0.3s;"><i class="fas fa-eye"></i> <span><strong>Tiered
+                                Visibility:</strong> Differentiate Defender P1 vs P2 at a glance.</span></li>
+                    <li style="animation-delay: 0.4s;"><i class="fas fa-file-export"></i> <span><strong>Enterprise
+                                Export:</strong> Generate specialized CSV and PDF stakeholder reports.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: AI Consultant -->
+        <div class="slide" id="slide-5">
+            <div class="content-card">
+                <h2><i class="fas fa-robot"></i> AI Senior Consultant</h2>
+                <div class="grid-layout">
+                    <ul>
+                        <li style="animation-delay: 0.1s;"><i class="fas fa-brain"></i> <span><strong>Grounded
+                                    AI:</strong> RAG-based logic for technical accuracy.</span></li>
+                        <li style="animation-delay: 0.2s;"><i class="fas fa-quote-left"></i> <span><strong>Source
+                                    Truth:</strong> Grounded in discover.microsoft.com.</span></li>
+                    </ul>
+                    <div class="stack-item" style="border-left: 2px solid var(--primary);">
+                        <p style="font-style: italic; color: var(--text-main);">"Expertly explains qualitative
+                            differences. Doesn't just list features—it conveys value."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Admin Portal -->
+        <div class="slide" id="slide-6">
+            <div class="content-card">
+                <h2><i class="fas fa-user-gear"></i> Admin Portal</h2>
+                <div class="grid-layout">
+                    <div class="stack-item">
+                        <h3>Tenant Visibility</h3>
+                        <p>Real-time insight into MSAL and Azure AD configurations.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Data Governance</h3>
+                        <p>Directly manage plans, features, and capability mappings.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Identity Sync</h3>
+                        <p>Experimental MS page scraping for data freshness.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Security First</h3>
+                        <p>Enterprise-grade MSAL auth for multi-tenant safety.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Tech Stack -->
+        <div class="slide" id="slide-7">
+            <div class="content-card">
+                <h2><i class="fas fa-code"></i> Technical Stack</h2>
+                <div class="grid-layout">
+                    <div class="stack-item">
+                        <h3>Frontend</h3>
+                        <p>React 18 • Context API • Custom Vanilla Glassmorphism CSS</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>Backend</h3>
+                        <p>Node.js • Express • Groq (Llama-3-70b) AI Engine</p>
+                    </div>
+                    <div class="stack-item" style="grid-column: span 2;">
+                        <h3>Infrastructure</h3>
+                        <p>MSAL (Microsoft Auth Library) • MongoDB / Mongoose Data Core</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Use Cases -->
+        <div class="slide" id="slide-8">
+            <div class="content-card">
+                <h2><i class="fas fa-users-viewfinder"></i> Strategic Use Cases</h2>
+                <ul>
+                    <li style="animation-delay: 0.1s;"><i class="fas fa-chart-pie"></i> <span><strong>License
+                                Optimization:</strong> Data-driven upgrade/downgrade paths.</span></li>
+                    <li style="animation-delay: 0.2s;"><i class="fas fa-handshake"></i> <span><strong>Sales
+                                Enablement:</strong> Live demonstrations to justify higher tiers.</span></li>
+                    <li style="animation-delay: 0.3s;"><i class="fas fa-magnifying-glass"></i> <span><strong>Technical
+                                Audit:</strong> One-click access to official documentation links.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: Design Philosophy -->
+        <div class="slide" id="slide-9">
+            <div class="content-card">
+                <h2><i class="fas fa-palette"></i> Design Philosophy</h2>
+                <div class="grid-layout">
+                    <div class="stack-item">
+                        <h3>Aesthetics</h3>
+                        <p>Vibrant gradients and professional dark-mode palette.</p>
+                    </div>
+                    <div class="stack-item">
+                        <h3>UX Design</h3>
+                        <p>Micro-animations and standard navigation patterns.</p>
+                    </div>
+                    <div class="stack-item" style="grid-column: span 2;">
+                        <h3>Consistency</h3>
+                        <p>Outfit/Inter typography with rigorous layout grids across all views.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Conclusion -->
+        <div class="slide" id="slide-10">
+            <div class="content-card title-slide">
+                <h2><i class="fas fa-flag-checkered"></i> Conclusion</h2>
+                <h1 style="font-size: 3.5rem;">SaaSMap Delivered</h1>
+                <p style="font-size: 1.5rem; color: var(--text-dim);">A simplified, interactive, and premium M365
+                    licensing experience.</p>
+                <div style="margin-top: 3rem; display: flex; justify-content: center; gap: 4rem;">
+                    <div style="text-align: center;">
+                        <i class="fas fa-check-circle"
+                            style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <p>Fully Responsive</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <i class="fas fa-check-circle"
+                            style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <p>AI Integrated</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <i class="fas fa-check-circle"
+                            style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <p>Ready for Enterprise</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter"><span id="current">01</span> / 10</div>
+
+    <div class="controls">
+        <button class="control-btn" id="prevBtn"><i class="fas fa-arrow-left"></i></button>
+        <button class="control-btn" id="nextBtn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentCounter = document.getElementById('current');
+        const progressBar = document.getElementById('progressBar');
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+
+                // Trigger list animations if applicable
+                if (index === currentSlide) {
+                    const list = slide.querySelector('ul');
+                    if (list) {
+                        const items = list.querySelectorAll('li');
+                        items.forEach((item, i) => {
+                            item.style.animation = 'none';
+                            item.offsetHeight; // trigger reflow
+                            item.style.animation = `fadeInRight 0.5s ease forwards ${i * 0.1 + 0.2}s`;
+                        });
+                    }
+                }
+            });
+
+            currentCounter.innerText = (currentSlide + 1).toString().padStart(2, '0');
+            progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    updateSlide();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateSlide();
+                }
+            }
+        });
+
+        // Initial Progress Update
+        updateSlide();
+    </script>
+
+</body>
+
+</html>
