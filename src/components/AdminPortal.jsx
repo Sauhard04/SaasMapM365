@@ -31,6 +31,7 @@ const AdminPortal = () => {
     const [featurePlanLinks, setFeaturePlanLinks] = useState([]);
     const [selectedTierIndices, setSelectedTierIndices] = useState([]);
     const [bulkInput, setBulkInput] = useState('');
+    const [visiblePasswords, setVisiblePasswords] = useState(new Set());
     const [localAuth, setLocalAuth] = useState(authConfig);
     const [isUserEditorOpen, setIsUserEditorOpen] = useState(false);
     const [newAdmin, setNewAdmin] = useState({ username: '', password: '', role: 'ADMIN' });
@@ -177,6 +178,15 @@ const AdminPortal = () => {
         setEditingFeature({ ...editingFeature, tierComparison: { ...editingFeature.tierComparison, tiers: updatedTiers } });
         setBulkInput('');
         setIsDirty(true);
+    };
+
+    const togglePasswordVisibility = (userId) => {
+        setVisiblePasswords((prev) => {
+            const next = new Set(prev);
+            if (next.has(userId)) next.delete(userId);
+            else next.add(userId);
+            return next;
+        });
     };
 
     const filteredFeatures = features.filter((f) =>
@@ -374,12 +384,24 @@ const AdminPortal = () => {
                                     {allUsers.map((u) => (
                                         <tr key={u.id}>
                                             <td className="user-name-cell">
-                                                <img src={u.avatar} className="user-table-avatar" />
+                                                <img src={u.avatar} className="user-table-avatar" alt={u.username} />
                                                 {u.username}
                                             </td>
-                                            <td className="user-pass-cell"><code>{u.password}</code></td>
+                                            <td className="user-pass-cell">
+                                                <div className="password-display-wrap">
+                                                    <code>
+                                                        {visiblePasswords.has(u.id) ? u.password : '••••••••'}
+                                                    </code>
+                                                    <button
+                                                        onClick={() => togglePasswordVisibility(u.id)}
+                                                        className="password-toggle-btn"
+                                                        title={visiblePasswords.has(u.id) ? "Hide Password" : "Show Password"}
+                                                    >
+                                                        <i className={`fas ${visiblePasswords.has(u.id) ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                                    </button>
+                                                </div>
+                                            </td>
                                             <td><span className={`role-badge ${u.role}`}>{u.role}</span></td>
-
                                             <td>
                                                 {u.username !== currentUser.username && (
                                                     <button
@@ -401,460 +423,470 @@ const AdminPortal = () => {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div >
                 )}
 
                 {/* Plans Tab */}
-                {activeTab === 'plans' && (
-                    <div className="admin-tab-content">
-                        <div className="plans-tab-header">
-                            <div>
-                                <h3 className="admin-section-title">License Catalog</h3>
-                                <p className="admin-section-desc">Manage pricing, commitments, and feature bundles.</p>
-                            </div>
-                            <button onClick={() => { setEditingPlan({ id: `custom-${Date.now()}`, name: 'New Custom Plan', type: 'Business', price: '$0.00', priceINR: '₹0', priceAnnual: '$0.00', priceAnnualINR: '₹0', color: '#64748b', description: '', features: [] }); setIsAddingNew(true); }} className="admin-add-btn">
-                                <i className="fas fa-plus"></i> Add New License
-                            </button>
-                        </div>
-
-                        <div className="plans-grid">
-                            {plans.map((plan) => (
-                                <div key={plan.id} className="plan-admin-card">
-                                    <div className="plan-admin-card-top">
-                                        <div className="plan-admin-card-left">
-                                            <div className="plan-color-dot" style={{ backgroundColor: plan.color }}></div>
-                                            <span className="plan-type-badge">{plan.type}</span>
-                                        </div>
-                                        <button onClick={() => { setEditingPlan(JSON.parse(JSON.stringify(plan))); setIsAddingNew(false); }} className="plan-edit-btn">
-                                            <i className="fas fa-pencil"></i>
-                                        </button>
-                                    </div>
-                                    <h4 className="plan-admin-name">{plan.name}</h4>
-                                    <div className="plan-pricing-rows">
-                                        <div className="plan-pricing-row">
-                                            <span className="plan-pricing-label">Monthly</span>
-                                            <div className="plan-pricing-values">
-                                                <span>{plan.price}</span>
-                                                <span className="plan-inr">{plan.priceINR}</span>
-                                            </div>
-                                        </div>
-                                        <div className="plan-pricing-row annual">
-                                            <span className="plan-pricing-label">Annual</span>
-                                            <div className="plan-pricing-values">
-                                                <span>{plan.priceAnnual}</span>
-                                                <span className="plan-inr">{plan.priceAnnualINR}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="plan-admin-footer">
-                                        <span className="plan-feature-count">{plan.features.length} Features</span>
-                                        {plan.id.startsWith('custom-') && (
-                                            <button onClick={() => requestConfirm({ title: 'Delete Custom Plan?', message: 'This will permanently remove this license.', actionLabel: 'Delete Plan', variant: 'danger', onConfirm: () => deletePlan(plan.id) })} className="plan-delete-btn">Remove</button>
-                                        )}
-                                    </div>
+                {
+                    activeTab === 'plans' && (
+                        <div className="admin-tab-content">
+                            <div className="plans-tab-header">
+                                <div>
+                                    <h3 className="admin-section-title">License Catalog</h3>
+                                    <p className="admin-section-desc">Manage pricing, commitments, and feature bundles.</p>
                                 </div>
-                            ))}
+                                <button onClick={() => { setEditingPlan({ id: `custom-${Date.now()}`, name: 'New Custom Plan', type: 'Business', price: '$0.00', priceINR: '₹0', priceAnnual: '$0.00', priceAnnualINR: '₹0', color: '#64748b', description: '', features: [] }); setIsAddingNew(true); }} className="admin-add-btn">
+                                    <i className="fas fa-plus"></i> Add New License
+                                </button>
+                            </div>
+
+                            <div className="plans-grid">
+                                {plans.map((plan) => (
+                                    <div key={plan.id} className="plan-admin-card">
+                                        <div className="plan-admin-card-top">
+                                            <div className="plan-admin-card-left">
+                                                <div className="plan-color-dot" style={{ backgroundColor: plan.color }}></div>
+                                                <span className="plan-type-badge">{plan.type}</span>
+                                            </div>
+                                            <button onClick={() => { setEditingPlan(JSON.parse(JSON.stringify(plan))); setIsAddingNew(false); }} className="plan-edit-btn">
+                                                <i className="fas fa-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <h4 className="plan-admin-name">{plan.name}</h4>
+                                        <div className="plan-pricing-rows">
+                                            <div className="plan-pricing-row">
+                                                <span className="plan-pricing-label">Monthly</span>
+                                                <div className="plan-pricing-values">
+                                                    <span>{plan.price}</span>
+                                                    <span className="plan-inr">{plan.priceINR}</span>
+                                                </div>
+                                            </div>
+                                            <div className="plan-pricing-row annual">
+                                                <span className="plan-pricing-label">Annual</span>
+                                                <div className="plan-pricing-values">
+                                                    <span>{plan.priceAnnual}</span>
+                                                    <span className="plan-inr">{plan.priceAnnualINR}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="plan-admin-footer">
+                                            <span className="plan-feature-count">{plan.features.length} Features</span>
+                                            {plan.id.startsWith('custom-') && (
+                                                <button onClick={() => requestConfirm({ title: 'Delete Custom Plan?', message: 'This will permanently remove this license.', actionLabel: 'Delete Plan', variant: 'danger', onConfirm: () => deletePlan(plan.id) })} className="plan-delete-btn">Remove</button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
                 {/* Features Tab */}
-                {activeTab === 'features' && (
-                    <div className="admin-tab-content">
-                        <div className="features-tab-header">
-                            <div>
-                                <h3 className="admin-section-title">Service Catalog</h3>
-                                <p className="admin-section-desc">Centralized management for all Microsoft 365 features and services.</p>
-                            </div>
-                            <div className="features-tab-actions">
-                                <div className="admin-search-wrap">
-                                    <i className="fas fa-search admin-search-icon"></i>
-                                    <input type="text" placeholder="Search services..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="admin-search-input" />
+                {
+                    activeTab === 'features' && (
+                        <div className="admin-tab-content">
+                            <div className="features-tab-header">
+                                <div>
+                                    <h3 className="admin-section-title">Service Catalog</h3>
+                                    <p className="admin-section-desc">Centralized management for all Microsoft 365 features and services.</p>
                                 </div>
-                                <button onClick={() => { setEditingFeature(EMPTY_FEATURE()); setIsAddingNew(true); }} className="admin-add-btn">
-                                    <i className="fas fa-plus"></i> Create Service
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="features-grid">
-                            {filteredFeatures.map((f) => (
-                                <div key={f.id} className="feature-admin-card">
-                                    <div className="feature-admin-card-top">
-                                        <span className={`feature-cat-badge ${CATEGORY_COLORS[f.category] || ''}`}>{f.category}</span>
-                                        <button onClick={() => { setEditingFeature(JSON.parse(JSON.stringify(f))); setIsAddingNew(false); }} className="feature-edit-btn">
-                                            <i className="fas fa-pencil"></i>
-                                        </button>
+                                <div className="features-tab-actions">
+                                    <div className="admin-search-wrap">
+                                        <i className="fas fa-search admin-search-icon"></i>
+                                        <input type="text" placeholder="Search services..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="admin-search-input" />
                                     </div>
-                                    <h5 className="feature-admin-name">{f.name}</h5>
-                                    <p className="feature-admin-desc">{f.description}</p>
+                                    <button onClick={() => { setEditingFeature(EMPTY_FEATURE()); setIsAddingNew(true); }} className="admin-add-btn">
+                                        <i className="fas fa-plus"></i> Create Service
+                                    </button>
                                 </div>
-                            ))}
+                            </div>
+
+                            <div className="features-grid">
+                                {filteredFeatures.map((f) => (
+                                    <div key={f.id} className="feature-admin-card">
+                                        <div className="feature-admin-card-top">
+                                            <span className={`feature-cat-badge ${CATEGORY_COLORS[f.category] || ''}`}>{f.category}</span>
+                                            <button onClick={() => { setEditingFeature(JSON.parse(JSON.stringify(f))); setIsAddingNew(false); }} className="feature-edit-btn">
+                                                <i className="fas fa-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <h5 className="feature-admin-name">{f.name}</h5>
+                                        <p className="feature-admin-desc">{f.description}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )
+                }
+            </div >
 
             {/* Plan Edit Modal */}
-            {editingPlan && (
-                <div className="overlay-modal">
-                    <div className="modal-content custom-scrollbar">
-                        <div className="modal-sticky-header">
-                            <div className="modal-title-row">
-                                <div className="modal-icon-box" style={{ backgroundColor: editingPlan.color }}>
-                                    <i className="fas fa-cube"></i>
-                                </div>
-                                <div>
-                                    <h3 className="modal-main-title">Bundle Architect</h3>
-                                    <p className="modal-sub-title">Configuring {editingPlan.name}</p>
-                                </div>
-                            </div>
-                            <button onClick={handleClosePlanEditor} className="close-btn"><i className="fas fa-times"></i></button>
-                        </div>
-
-                        <div className="plan-editor-grid">
-                            <div className="plan-editor-left">
-                                <div className="form-group">
-                                    <label className="form-label">Bundle Identifier</label>
-                                    <input type="text" value={editingPlan.name} onChange={(e) => { setEditingPlan({ ...editingPlan, name: e.target.value }); setIsDirty(true); }} className="form-input" />
-                                </div>
-
-                                <div className="pricing-section">
-                                    <span className="pricing-section-label">Monthly Commitment Rates</span>
-                                    <div className="pricing-grid">
-                                        <div>
-                                            <label className="form-label">USD Price</label>
-                                            <input type="text" value={editingPlan.price} onChange={(e) => { setEditingPlan({ ...editingPlan, price: e.target.value }); setIsDirty(true); }} className="form-input" />
-                                        </div>
-                                        <div>
-                                            <label className="form-label">INR Price</label>
-                                            <input type="text" value={editingPlan.priceINR} onChange={(e) => { setEditingPlan({ ...editingPlan, priceINR: e.target.value }); setIsDirty(true); }} className="form-input" />
-                                        </div>
-                                    </div>
-                                    <div className="pricing-divider"></div>
-                                    <span className="pricing-section-label annual">Annual Commitment Rates</span>
-                                    <div className="pricing-grid">
-                                        <div>
-                                            <label className="form-label">USD (Year)</label>
-                                            <input type="text" value={editingPlan.priceAnnual} onChange={(e) => { setEditingPlan({ ...editingPlan, priceAnnual: e.target.value }); setIsDirty(true); }} className="form-input annual" />
-                                        </div>
-                                        <div>
-                                            <label className="form-label">INR (Year)</label>
-                                            <input type="text" value={editingPlan.priceAnnualINR} onChange={(e) => { setEditingPlan({ ...editingPlan, priceAnnualINR: e.target.value }); setIsDirty(true); }} className="form-input annual" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="color-type-row">
-                                    <div>
-                                        <label className="form-label">Accent Color</label>
-                                        <input type="color" value={editingPlan.color} onChange={(e) => { setEditingPlan({ ...editingPlan, color: e.target.value }); setIsDirty(true); }} className="color-picker" />
+            {
+                editingPlan && (
+                    <div className="overlay-modal">
+                        <div className="modal-content custom-scrollbar">
+                            <div className="modal-sticky-header">
+                                <div className="modal-title-row">
+                                    <div className="modal-icon-box" style={{ backgroundColor: editingPlan.color }}>
+                                        <i className="fas fa-cube"></i>
                                     </div>
                                     <div>
-                                        <label className="form-label">Plan Category</label>
-                                        <div className="plan-type-options">
-                                            {['Business', 'Enterprise'].map((type) => (
-                                                <div key={type} onClick={() => { setEditingPlan({ ...editingPlan, type }); setIsDirty(true); }} className={`plan-type-option ${editingPlan.type === type ? 'active' : ''}`}>
-                                                    <div className={`plan-type-icon ${editingPlan.type === type ? 'active' : ''}`}>
-                                                        <i className={`fas ${type === 'Business' ? 'fa-briefcase' : 'fa-building'}`}></i>
-                                                    </div>
-                                                    <span>{type}</span>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <h3 className="modal-main-title">Bundle Architect</h3>
+                                        <p className="modal-sub-title">Configuring {editingPlan.name}</p>
                                     </div>
                                 </div>
+                                <button onClick={handleClosePlanEditor} className="close-btn"><i className="fas fa-times"></i></button>
                             </div>
 
-                            <div className="plan-editor-right">
-                                <div className="feature-mapping-header">
-                                    <h4><i className="fas fa-layer-group"></i> Feature Matrix Mapping</h4>
-                                    <span>{editingPlan.features.length} Enabled</span>
-                                </div>
-                                <div className="feature-mapping-list custom-scrollbar">
-                                    {categories.map((cat) => (
-                                        <div key={cat} className="feature-mapping-category">
-                                            <h4 className="feature-mapping-cat-title">{cat}</h4>
-                                            <div className="feature-mapping-items">
-                                                {features.filter((f) => f.category === cat).map((f) => {
-                                                    const isIncluded = editingPlan.features.includes(f.id);
-                                                    return (
-                                                        <button key={f.id} onClick={() => { handleToggleFeatureInPlan(f.id); setIsDirty(true); }} className={`feature-toggle-btn ${isIncluded ? 'active' : ''}`}>
-                                                            <span>{f.name}</span>
-                                                            {isIncluded ? <i className="fas fa-check-circle"></i> : <i className="fas fa-circle-plus"></i>}
-                                                        </button>
-                                                    );
-                                                })}
+                            <div className="plan-editor-grid">
+                                <div className="plan-editor-left">
+                                    <div className="form-group">
+                                        <label className="form-label">Bundle Identifier</label>
+                                        <input type="text" value={editingPlan.name} onChange={(e) => { setEditingPlan({ ...editingPlan, name: e.target.value }); setIsDirty(true); }} className="form-input" />
+                                    </div>
+
+                                    <div className="pricing-section">
+                                        <span className="pricing-section-label">Monthly Commitment Rates</span>
+                                        <div className="pricing-grid">
+                                            <div>
+                                                <label className="form-label">USD Price</label>
+                                                <input type="text" value={editingPlan.price} onChange={(e) => { setEditingPlan({ ...editingPlan, price: e.target.value }); setIsDirty(true); }} className="form-input" />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">INR Price</label>
+                                                <input type="text" value={editingPlan.priceINR} onChange={(e) => { setEditingPlan({ ...editingPlan, priceINR: e.target.value }); setIsDirty(true); }} className="form-input" />
                                             </div>
                                         </div>
-                                    ))}
+                                        <div className="pricing-divider"></div>
+                                        <span className="pricing-section-label annual">Annual Commitment Rates</span>
+                                        <div className="pricing-grid">
+                                            <div>
+                                                <label className="form-label">USD (Year)</label>
+                                                <input type="text" value={editingPlan.priceAnnual} onChange={(e) => { setEditingPlan({ ...editingPlan, priceAnnual: e.target.value }); setIsDirty(true); }} className="form-input annual" />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">INR (Year)</label>
+                                                <input type="text" value={editingPlan.priceAnnualINR} onChange={(e) => { setEditingPlan({ ...editingPlan, priceAnnualINR: e.target.value }); setIsDirty(true); }} className="form-input annual" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="color-type-row">
+                                        <div>
+                                            <label className="form-label">Accent Color</label>
+                                            <input type="color" value={editingPlan.color} onChange={(e) => { setEditingPlan({ ...editingPlan, color: e.target.value }); setIsDirty(true); }} className="color-picker" />
+                                        </div>
+                                        <div>
+                                            <label className="form-label">Plan Category</label>
+                                            <div className="plan-type-options">
+                                                {['Business', 'Enterprise'].map((type) => (
+                                                    <div key={type} onClick={() => { setEditingPlan({ ...editingPlan, type }); setIsDirty(true); }} className={`plan-type-option ${editingPlan.type === type ? 'active' : ''}`}>
+                                                        <div className={`plan-type-icon ${editingPlan.type === type ? 'active' : ''}`}>
+                                                            <i className={`fas ${type === 'Business' ? 'fa-briefcase' : 'fa-building'}`}></i>
+                                                        </div>
+                                                        <span>{type}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="plan-editor-right">
+                                    <div className="feature-mapping-header">
+                                        <h4><i className="fas fa-layer-group"></i> Feature Matrix Mapping</h4>
+                                        <span>{editingPlan.features.length} Enabled</span>
+                                    </div>
+                                    <div className="feature-mapping-list custom-scrollbar">
+                                        {categories.map((cat) => (
+                                            <div key={cat} className="feature-mapping-category">
+                                                <h4 className="feature-mapping-cat-title">{cat}</h4>
+                                                <div className="feature-mapping-items">
+                                                    {features.filter((f) => f.category === cat).map((f) => {
+                                                        const isIncluded = editingPlan.features.includes(f.id);
+                                                        return (
+                                                            <button key={f.id} onClick={() => { handleToggleFeatureInPlan(f.id); setIsDirty(true); }} className={`feature-toggle-btn ${isIncluded ? 'active' : ''}`}>
+                                                                <span>{f.name}</span>
+                                                                {isIncluded ? <i className="fas fa-check-circle"></i> : <i className="fas fa-circle-plus"></i>}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="modal-footer-actions">
-                            <button onClick={saveAndClosePlanModal} className="modal-save-btn">Synchronize Catalog</button>
-                            {!isAddingNew && editingPlan.id.startsWith('custom-') && (
-                                <button
-                                    type="button"
-                                    onClick={() => requestConfirm({
-                                        title: 'Delete Custom Plan?',
-                                        message: 'This will permanently remove this license from the catalog.',
-                                        actionLabel: 'Delete Plan',
-                                        variant: 'danger',
-                                        onConfirm: () => { deletePlan(editingPlan.id); setEditingPlan(null); }
-                                    })}
-                                    className="modal-delete-btn"
-                                >
-                                    Delete Plan
-                                </button>
-                            )}
-                            <button onClick={handleClosePlanEditor} className="modal-cancel-btn">Cancel</button>
+                            <div className="modal-footer-actions">
+                                <button onClick={saveAndClosePlanModal} className="modal-save-btn">Synchronize Catalog</button>
+                                {!isAddingNew && editingPlan.id.startsWith('custom-') && (
+                                    <button
+                                        type="button"
+                                        onClick={() => requestConfirm({
+                                            title: 'Delete Custom Plan?',
+                                            message: 'This will permanently remove this license from the catalog.',
+                                            actionLabel: 'Delete Plan',
+                                            variant: 'danger',
+                                            onConfirm: () => { deletePlan(editingPlan.id); setEditingPlan(null); }
+                                        })}
+                                        className="modal-delete-btn"
+                                    >
+                                        Delete Plan
+                                    </button>
+                                )}
+                                <button onClick={handleClosePlanEditor} className="modal-cancel-btn">Cancel</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Feature Edit Modal */}
-            {editingFeature && (
-                <div className="overlay-modal">
-                    <div className="modal-content custom-scrollbar">
-                        <div className="modal-sticky-header">
-                            <div className="modal-title-row">
-                                <div className={`modal-icon-box ${CATEGORY_COLORS[editingFeature.category] || ''}`}>
-                                    <i className="fas fa-cubes"></i>
-                                </div>
-                                <div>
-                                    <h3 className="modal-main-title">Service Blueprint</h3>
-                                    <p className="modal-sub-title">{isAddingNew ? 'Constructing New Feature' : `Refining ${editingFeature.name}`}</p>
-                                </div>
-                            </div>
-                            <button onClick={handleCloseFeatureEditor} className="close-btn"><i className="fas fa-times"></i></button>
-                        </div>
-
-                        <div className="feature-editor-grid">
-                            {/* Left: Metadata */}
-                            <div className="feature-editor-left">
-                                <div className="form-group">
-                                    <label className="form-label">Service Name</label>
-                                    <input type="text" value={editingFeature.name} onChange={(e) => { setEditingFeature({ ...editingFeature, name: e.target.value }); setIsDirty(true); }} className="form-input" />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Service Category</label>
-                                    <select value={editingFeature.category} onChange={(e) => { setEditingFeature({ ...editingFeature, category: e.target.value }); setIsDirty(true); }} className="form-input">
-                                        {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Documentation URL</label>
-                                    <div className="url-input-wrap">
-                                        <i className="fas fa-link url-input-icon"></i>
-                                        <input type="url" placeholder="https://learn.microsoft.com/..." value={editingFeature.link || ''} onChange={(e) => { setEditingFeature({ ...editingFeature, link: e.target.value }); setIsDirty(true); }} className="form-input url-input" />
+            {
+                editingFeature && (
+                    <div className="overlay-modal">
+                        <div className="modal-content custom-scrollbar">
+                            <div className="modal-sticky-header">
+                                <div className="modal-title-row">
+                                    <div className={`modal-icon-box ${CATEGORY_COLORS[editingFeature.category] || ''}`}>
+                                        <i className="fas fa-cubes"></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="modal-main-title">Service Blueprint</h3>
+                                        <p className="modal-sub-title">{isAddingNew ? 'Constructing New Feature' : `Refining ${editingFeature.name}`}</p>
                                     </div>
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">Marketing Description</label>
-                                    <textarea value={editingFeature.description} onChange={(e) => { setEditingFeature({ ...editingFeature, description: e.target.value }); setIsDirty(true); }} className="form-textarea" />
-                                </div>
+                                <button onClick={handleCloseFeatureEditor} className="close-btn"><i className="fas fa-times"></i></button>
                             </div>
 
-                            {/* Right: Tier Logic */}
-                            <div className="feature-editor-right">
-                                <div className="tier-editor-header">
-                                    <h4><i className="fas fa-layer-group"></i> Tier Progression Logic</h4>
-                                    <button onClick={handleAddTier} className="add-tier-btn"><i className="fas fa-plus"></i> Add Level</button>
+                            <div className="feature-editor-grid">
+                                {/* Left: Metadata */}
+                                <div className="feature-editor-left">
+                                    <div className="form-group">
+                                        <label className="form-label">Service Name</label>
+                                        <input type="text" value={editingFeature.name} onChange={(e) => { setEditingFeature({ ...editingFeature, name: e.target.value }); setIsDirty(true); }} className="form-input" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Service Category</label>
+                                        <select value={editingFeature.category} onChange={(e) => { setEditingFeature({ ...editingFeature, category: e.target.value }); setIsDirty(true); }} className="form-input">
+                                            {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Documentation URL</label>
+                                        <div className="url-input-wrap">
+                                            <i className="fas fa-link url-input-icon"></i>
+                                            <input type="url" placeholder="https://learn.microsoft.com/..." value={editingFeature.link || ''} onChange={(e) => { setEditingFeature({ ...editingFeature, link: e.target.value }); setIsDirty(true); }} className="form-input url-input" />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Marketing Description</label>
+                                        <textarea value={editingFeature.description} onChange={(e) => { setEditingFeature({ ...editingFeature, description: e.target.value }); setIsDirty(true); }} className="form-textarea" />
+                                    </div>
                                 </div>
 
-                                {!editingFeature.tierComparison ? (
-                                    <div className="no-tier-placeholder">
-                                        <div className="no-tier-icon"><i className="fas fa-stream"></i></div>
-                                        <p className="no-tier-title">Standard Service Model</p>
-                                        <p className="no-tier-desc">This feature is currently non-tiered. Enable comparison to map Plan 1/Plan 2 variations.</p>
-                                        <button onClick={handleAddTier} className="enable-tier-btn">Enable Multi-Tier Mapping</button>
+                                {/* Right: Tier Logic */}
+                                <div className="feature-editor-right">
+                                    <div className="tier-editor-header">
+                                        <h4><i className="fas fa-layer-group"></i> Tier Progression Logic</h4>
+                                        <button onClick={handleAddTier} className="add-tier-btn"><i className="fas fa-plus"></i> Add Level</button>
                                     </div>
-                                ) : (
-                                    <div className="tier-editor-content">
-                                        {editingFeature.tierComparison.tiers.length > 1 && (
-                                            <div className="bulk-ops-panel">
-                                                <div className="bulk-ops-header">
-                                                    <div className="bulk-ops-title-row">
-                                                        <div className="bulk-ops-icon"><i className="fas fa-screwdriver-wrench"></i></div>
-                                                        <div>
-                                                            <h5>Bulk Operations Architect</h5>
-                                                            <p>Apply changes to {selectedTierIndices.length} targeted tier(s)</p>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => { const all = editingFeature.tierComparison.tiers.map((_, i) => i); setSelectedTierIndices(selectedTierIndices.length === all.length ? [] : all); }} className="select-all-btn">
-                                                        {selectedTierIndices.length === editingFeature.tierComparison.tiers.length ? 'Deselect All' : 'Select All Tiers'}
-                                                    </button>
-                                                </div>
-                                                <div className="bulk-ops-row">
-                                                    <input type="text" value={bulkInput} onChange={(e) => setBulkInput(e.target.value)} placeholder="e.g. Audit Logging, Data Retention, MFA..." className="bulk-input" />
-                                                    <div className="bulk-btns">
-                                                        <button onClick={() => handleBulkOperation('ADD')} disabled={!selectedTierIndices.length || !bulkInput.trim()} className="bulk-add-btn"><i className="fas fa-plus-circle"></i> Inject</button>
-                                                        <button onClick={() => handleBulkOperation('REMOVE')} disabled={!selectedTierIndices.length || !bulkInput.trim()} className="bulk-remove-btn"><i className="fas fa-minus-circle"></i> Prune</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
 
-                                        <div className="tier-cards-editor custom-scrollbar">
-                                            {editingFeature.tierComparison.tiers.map((tier, tIdx) => {
-                                                const isSelected = selectedTierIndices.includes(tIdx);
-                                                return (
-                                                    <div key={tIdx} className={`tier-editor-card ${isSelected ? 'selected' : ''}`}>
-                                                        <div className="tier-card-controls">
-                                                            <button onClick={() => handleMoveTier(tIdx, 'up')} disabled={tIdx === 0} className="tier-move-btn"><i className="fas fa-arrow-up"></i></button>
-                                                            <button onClick={() => handleMoveTier(tIdx, 'down')} disabled={tIdx === editingFeature.tierComparison.tiers.length - 1} className="tier-move-btn"><i className="fas fa-arrow-down"></i></button>
-                                                            <button onClick={() => handleRemoveTier(tIdx)} className="tier-delete-btn"><i className="fas fa-trash-alt"></i></button>
+                                    {!editingFeature.tierComparison ? (
+                                        <div className="no-tier-placeholder">
+                                            <div className="no-tier-icon"><i className="fas fa-stream"></i></div>
+                                            <p className="no-tier-title">Standard Service Model</p>
+                                            <p className="no-tier-desc">This feature is currently non-tiered. Enable comparison to map Plan 1/Plan 2 variations.</p>
+                                            <button onClick={handleAddTier} className="enable-tier-btn">Enable Multi-Tier Mapping</button>
+                                        </div>
+                                    ) : (
+                                        <div className="tier-editor-content">
+                                            {editingFeature.tierComparison.tiers.length > 1 && (
+                                                <div className="bulk-ops-panel">
+                                                    <div className="bulk-ops-header">
+                                                        <div className="bulk-ops-title-row">
+                                                            <div className="bulk-ops-icon"><i className="fas fa-screwdriver-wrench"></i></div>
+                                                            <div>
+                                                                <h5>Bulk Operations Architect</h5>
+                                                                <p>Apply changes to {selectedTierIndices.length} targeted tier(s)</p>
+                                                            </div>
                                                         </div>
-                                                        <button onClick={() => handleToggleTierSelection(tIdx)} className={`tier-select-checkbox ${isSelected ? 'active' : ''}`}>
-                                                            <i className="fas fa-check"></i>
+                                                        <button onClick={() => { const all = editingFeature.tierComparison.tiers.map((_, i) => i); setSelectedTierIndices(selectedTierIndices.length === all.length ? [] : all); }} className="select-all-btn">
+                                                            {selectedTierIndices.length === editingFeature.tierComparison.tiers.length ? 'Deselect All' : 'Select All Tiers'}
                                                         </button>
-                                                        <div className="tier-editor-fields">
-                                                            <label className="form-label">Level {tIdx + 1} Metadata</label>
-                                                            <div className="tier-name-row">
-                                                                <span className={`tier-num-badge ${isSelected ? 'selected' : ''}`}>{tIdx + 1}</span>
-                                                                <input type="text" value={tier.tierName} onChange={(e) => handleUpdateTier(tIdx, { ...tier, tierName: e.target.value })} className="form-input" placeholder="Tier Title (e.g. Premium)" />
+                                                    </div>
+                                                    <div className="bulk-ops-row">
+                                                        <input type="text" value={bulkInput} onChange={(e) => setBulkInput(e.target.value)} placeholder="e.g. Audit Logging, Data Retention, MFA..." className="bulk-input" />
+                                                        <div className="bulk-btns">
+                                                            <button onClick={() => handleBulkOperation('ADD')} disabled={!selectedTierIndices.length || !bulkInput.trim()} className="bulk-add-btn"><i className="fas fa-plus-circle"></i> Inject</button>
+                                                            <button onClick={() => handleBulkOperation('REMOVE')} disabled={!selectedTierIndices.length || !bulkInput.trim()} className="bulk-remove-btn"><i className="fas fa-minus-circle"></i> Prune</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="tier-cards-editor custom-scrollbar">
+                                                {editingFeature.tierComparison.tiers.map((tier, tIdx) => {
+                                                    const isSelected = selectedTierIndices.includes(tIdx);
+                                                    return (
+                                                        <div key={tIdx} className={`tier-editor-card ${isSelected ? 'selected' : ''}`}>
+                                                            <div className="tier-card-controls">
+                                                                <button onClick={() => handleMoveTier(tIdx, 'up')} disabled={tIdx === 0} className="tier-move-btn"><i className="fas fa-arrow-up"></i></button>
+                                                                <button onClick={() => handleMoveTier(tIdx, 'down')} disabled={tIdx === editingFeature.tierComparison.tiers.length - 1} className="tier-move-btn"><i className="fas fa-arrow-down"></i></button>
+                                                                <button onClick={() => handleRemoveTier(tIdx)} className="tier-delete-btn"><i className="fas fa-trash-alt"></i></button>
                                                             </div>
-                                                            <div className="form-group">
-                                                                <label className="form-label">Capabilities Inventory</label>
-                                                                <textarea value={tier.capabilities.join(', ')} onChange={(e) => handleUpdateTier(tIdx, { ...tier, capabilities: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} className="form-textarea small" placeholder="Feature set for this tier..." />
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label className="form-label">Associated Bundles</label>
-                                                                <div className="tier-plan-chips">
-                                                                    {plans.map((p) => {
-                                                                        const isIncluded = tier.includedInPlanIds?.includes(p.id);
-                                                                        return (
-                                                                            <button key={p.id} onClick={() => { const ids = tier.includedInPlanIds || []; handleUpdateTier(tIdx, { ...tier, includedInPlanIds: isIncluded ? ids.filter((id) => id !== p.id) : [...ids, p.id] }); }} className={`tier-plan-chip ${isIncluded ? 'active' : ''}`}>
-                                                                                {p.name}
-                                                                            </button>
-                                                                        );
-                                                                    })}
+                                                            <button onClick={() => handleToggleTierSelection(tIdx)} className={`tier-select-checkbox ${isSelected ? 'active' : ''}`}>
+                                                                <i className="fas fa-check"></i>
+                                                            </button>
+                                                            <div className="tier-editor-fields">
+                                                                <label className="form-label">Level {tIdx + 1} Metadata</label>
+                                                                <div className="tier-name-row">
+                                                                    <span className={`tier-num-badge ${isSelected ? 'selected' : ''}`}>{tIdx + 1}</span>
+                                                                    <input type="text" value={tier.tierName} onChange={(e) => handleUpdateTier(tIdx, { ...tier, tierName: e.target.value })} className="form-input" placeholder="Tier Title (e.g. Premium)" />
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <label className="form-label">Capabilities Inventory</label>
+                                                                    <textarea value={tier.capabilities.join(', ')} onChange={(e) => handleUpdateTier(tIdx, { ...tier, capabilities: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} className="form-textarea small" placeholder="Feature set for this tier..." />
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <label className="form-label">Associated Bundles</label>
+                                                                    <div className="tier-plan-chips">
+                                                                        {plans.map((p) => {
+                                                                            const isIncluded = tier.includedInPlanIds?.includes(p.id);
+                                                                            return (
+                                                                                <button key={p.id} onClick={() => { const ids = tier.includedInPlanIds || []; handleUpdateTier(tIdx, { ...tier, includedInPlanIds: isIncluded ? ids.filter((id) => id !== p.id) : [...ids, p.id] }); }} className={`tier-plan-chip ${isIncluded ? 'active' : ''}`}>
+                                                                                    {p.name}
+                                                                                </button>
+                                                                            );
+                                                                        })}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })}
 
-                                            <button onClick={handleAddTier} className="add-tier-placeholder">
-                                                <div className="add-tier-placeholder-icon"><i className="fas fa-plus"></i></div>
-                                                <span>Add Tier Stage</span>
-                                                <p>Append a new technical level to the service map</p>
-                                            </button>
+                                                <button onClick={handleAddTier} className="add-tier-placeholder">
+                                                    <div className="add-tier-placeholder-icon"><i className="fas fa-plus"></i></div>
+                                                    <span>Add Tier Stage</span>
+                                                    <p>Append a new technical level to the service map</p>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="modal-footer-actions">
+                                <button onClick={saveAndCloseFeatureModal} className="modal-save-btn">Commit to Global Catalog</button>
+                                {!isAddingNew && (
+                                    <button
+                                        type="button"
+                                        onClick={() => requestConfirm({
+                                            title: 'Delete Service Capability?',
+                                            message: 'This will permanently remove this service from the catalog and all linked bundles in the matrix.',
+                                            actionLabel: 'Delete Permanently',
+                                            variant: 'danger',
+                                            onConfirm: () => { deleteFeature(editingFeature.id); setEditingFeature(null); }
+                                        })}
+                                        className="modal-delete-btn"
+                                    >
+                                        Delete Service
+                                    </button>
                                 )}
+                                <button onClick={handleCloseFeatureEditor} className="modal-cancel-btn">Discard Blueprint</button>
                             </div>
                         </div>
-
-                        <div className="modal-footer-actions">
-                            <button onClick={saveAndCloseFeatureModal} className="modal-save-btn">Commit to Global Catalog</button>
-                            {!isAddingNew && (
-                                <button
-                                    type="button"
-                                    onClick={() => requestConfirm({
-                                        title: 'Delete Service Capability?',
-                                        message: 'This will permanently remove this service from the catalog and all linked bundles in the matrix.',
-                                        actionLabel: 'Delete Permanently',
-                                        variant: 'danger',
-                                        onConfirm: () => { deleteFeature(editingFeature.id); setEditingFeature(null); }
-                                    })}
-                                    className="modal-delete-btn"
-                                >
-                                    Delete Service
-                                </button>
-                            )}
-                            <button onClick={handleCloseFeatureEditor} className="modal-cancel-btn">Discard Blueprint</button>
-                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             {/* New User Modal */}
-            {isUserEditorOpen && (
-                <div className="overlay-modal">
-                    <div className="modal-content small custom-scrollbar">
-                        <div className="modal-sticky-header">
-                            <div className="modal-title-row">
-                                <div className="modal-icon-box" style={{ background: '#2563eb' }}>
-                                    <i className="fas fa-user-plus"></i>
+            {
+                isUserEditorOpen && (
+                    <div className="overlay-modal">
+                        <div className="modal-content small custom-scrollbar">
+                            <div className="modal-sticky-header">
+                                <div className="modal-title-row">
+                                    <div className="modal-icon-box" style={{ background: '#2563eb' }}>
+                                        <i className="fas fa-user-plus"></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="modal-main-title">Admin Registration</h3>
+                                        <p className="modal-sub-title">Deploying new system credentials</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="modal-main-title">Admin Registration</h3>
-                                    <p className="modal-sub-title">Deploying new system credentials</p>
-                                </div>
+                                <button onClick={() => setIsUserEditorOpen(false)} className="close-btn"><i className="fas fa-times"></i></button>
                             </div>
-                            <button onClick={() => setIsUserEditorOpen(false)} className="close-btn"><i className="fas fa-times"></i></button>
-                        </div>
 
-                        <div className="user-editor-form">
-                            <div className="form-group">
-                                <label className="form-label">Username</label>
-                                <div className="login-input-wrap">
-                                    <i className="fas fa-user"></i>
-                                    <input
-                                        type="text"
-                                        value={newAdmin.username}
-                                        onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                            <div className="user-editor-form">
+                                <div className="form-group">
+                                    <label className="form-label">Username</label>
+                                    <div className="login-input-wrap">
+                                        <i className="fas fa-user"></i>
+                                        <input
+                                            type="text"
+                                            value={newAdmin.username}
+                                            onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                                            className="form-input"
+                                            placeholder="e.g. jdoe"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Password</label>
+                                    <div className="login-input-wrap">
+                                        <i className="fas fa-key"></i>
+                                        <input
+                                            type="text"
+                                            value={newAdmin.password}
+                                            onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                                            className="form-input"
+                                            placeholder="Secure Passphrase"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Access Level</label>
+                                    <select
                                         className="form-input"
-                                        placeholder="e.g. jdoe"
-                                    />
+                                        value={newAdmin.role}
+                                        onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+                                    >
+                                        <option value="ADMIN">Administrator</option>
+                                        <option value="SUPER_ADMIN">Super Administrator</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Password</label>
-                                <div className="login-input-wrap">
-                                    <i className="fas fa-key"></i>
-                                    <input
-                                        type="text"
-                                        value={newAdmin.password}
-                                        onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                                        className="form-input"
-                                        placeholder="Secure Passphrase"
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Access Level</label>
-                                <select
-                                    className="form-input"
-                                    value={newAdmin.role}
-                                    onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+
+                            <div className="modal-footer-actions">
+                                <button
+                                    onClick={() => {
+                                        if (!newAdmin.username || !newAdmin.password) return alert('Fill all fields');
+                                        addUser({
+                                            ...newAdmin,
+                                            id: `manual-${Date.now()}`,
+                                            isApproved: true,
+                                            jobTitle: newAdmin.role === 'SUPER_ADMIN' ? 'Global Admin' : 'IT Admin',
+                                            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newAdmin.username}`,
+                                            tenantId: tenantInfo.tenantId,
+                                            email: `${newAdmin.username}@meridian.com`
+                                        });
+                                        setIsUserEditorOpen(false);
+                                        setNewAdmin({ username: '', password: '', role: 'ADMIN' });
+                                    }}
+                                    className="modal-save-btn"
                                 >
-                                    <option value="ADMIN">Administrator</option>
-                                    <option value="SUPER_ADMIN">Super Administrator</option>
-                                </select>
+                                    Provision Account
+                                </button>
+                                <button onClick={() => setIsUserEditorOpen(false)} className="modal-cancel-btn">Cancel</button>
                             </div>
-                        </div>
-
-                        <div className="modal-footer-actions">
-                            <button
-                                onClick={() => {
-                                    if (!newAdmin.username || !newAdmin.password) return alert('Fill all fields');
-                                    addUser({
-                                        ...newAdmin,
-                                        id: `manual-${Date.now()}`,
-                                        isApproved: true,
-                                        jobTitle: newAdmin.role === 'SUPER_ADMIN' ? 'Global Admin' : 'IT Admin',
-                                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newAdmin.username}`,
-                                        tenantId: tenantInfo.tenantId,
-                                        email: `${newAdmin.username}@meridian.com`
-                                    });
-                                    setIsUserEditorOpen(false);
-                                    setNewAdmin({ username: '', password: '', role: 'ADMIN' });
-                                }}
-                                className="modal-save-btn"
-                            >
-                                Provision Account
-                            </button>
-                            <button onClick={() => setIsUserEditorOpen(false)} className="modal-cancel-btn">Cancel</button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

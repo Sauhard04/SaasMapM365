@@ -242,7 +242,7 @@ const AppContent = () => {
                                     <i className="fas fa-user"></i>
                                     <input
                                         type="text"
-                                        placeholder="Admin"
+                                        placeholder="username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         required
@@ -255,7 +255,7 @@ const AppContent = () => {
                                     <i className="fas fa-lock"></i>
                                     <input
                                         type="password"
-                                        placeholder="••••••••"
+                                        placeholder="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
@@ -277,6 +277,7 @@ const AppContent = () => {
             )}
 
             <Chatbot />
+
         </div>
     );
 };

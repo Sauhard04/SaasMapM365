@@ -1,5 +1,5 @@
 import React from 'react';
-import { PLANS } from '../constants.js';
+import { useData } from '../context/DataContext.jsx';
 import './FeatureDetailsModal.css';
 
 const getTierStyle = (index, total) => {
@@ -30,7 +30,12 @@ const isInherited = (cap) => {
     return t.includes('all plan') || t.includes('all p1') || t.includes('all p2') || t.includes('includes ') || t.includes('base features');
 };
 
-const FeatureDetailsModal = ({ feature, onClose }) => {
+const FeatureDetailsModal = ({ feature: propFeature, onClose }) => {
+    const { features, plans } = useData();
+
+    // Find the most up-to-date feature from context based on the ID passed
+    const feature = propFeature ? features.find(f => f.id === propFeature.id) : null;
+
     if (!feature) return null;
 
     return (
@@ -100,11 +105,13 @@ const FeatureDetailsModal = ({ feature, onClose }) => {
                                                     </div>
                                                     <div className="tier-plans-list">
                                                         {tier.includedInPlanIds.map((pid) => {
-                                                            const plan = PLANS.find((p) => p.id === pid);
+                                                            // Use dynamic plans from context instead of constants
+                                                            const plan = plans.find((p) => p.id === pid);
+                                                            if (!plan) return null;
                                                             return (
                                                                 <div key={pid} className="tier-plan-chip">
-                                                                    <div className="tier-plan-dot" style={{ backgroundColor: plan?.color }}></div>
-                                                                    {plan?.name}
+                                                                    <div className="tier-plan-dot" style={{ backgroundColor: plan.color }}></div>
+                                                                    {plan.name}
                                                                 </div>
                                                             );
                                                         })}
