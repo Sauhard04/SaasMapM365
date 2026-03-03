@@ -3,6 +3,7 @@ import PlanSelector from './components/PlanSelector.jsx';
 import FeatureMatrix from './components/FeatureMatrix.jsx';
 import ComparisonTool from './components/ComparisonTool.jsx';
 import AdminPortal from './components/AdminPortal.jsx';
+import HelpForm from './components/HelpForm.jsx';
 import Chatbot from './components/Chatbot.jsx';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import './styles/App.css';
@@ -142,6 +143,8 @@ const AppContent = () => {
             <main className="main-content">
                 {activeTab === 'admin' ? (
                     <AdminPortal />
+                ) : activeTab === 'help' ? (
+                    <HelpForm onBack={() => setActiveTab('map')} />
                 ) : activeTab === 'map' ? (
                     <div className="map-view">
                         <div className="hero-section">
@@ -276,7 +279,16 @@ const AppContent = () => {
                 </div>
             )}
 
-            <Chatbot />
+            <div className="floating-actions">
+                <button
+                    className={`help-toggle-float ${activeTab === 'help' ? 'active' : ''}`}
+                    onClick={() => setActiveTab(activeTab === 'help' ? 'map' : 'help')}
+                    title="Support & Help"
+                >
+                    <i className={activeTab === 'help' ? "fas fa-times" : "fas fa-question"}></i>
+                </button>
+                <Chatbot />
+            </div>
 
         </div>
     );
