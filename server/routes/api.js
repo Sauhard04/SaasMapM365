@@ -148,6 +148,10 @@ router.post('/chat', async (req, res) => {
                         2. **Detailed Feature Deep-Dive**: Use the actual feature names provided in the context to explain what the user gets. Don't say "E5 has 33 features"; say "E5 includes advanced capabilities like **Defender for Identity**, **Privileged Identity Management (PIM)**, and **Teams Phone** which are missing in E3."
                         3. **Value Comparison**: Explain *why* one might choose a higher tier (e.g., "The move to E5 is typically driven by a need for automated security response and advanced compliance auditing.")
                         4. **Official Guidance**: Conclude with a friendly invitation for more questions and a clickable link to the official Microsoft documentation for the relevant plan.
++                        
++                        **Edge Case - Lack of Information:**
++                        - If a query is highly specific and you cannot find the answer in the provided context or your internal knowledge base, do not hallucinate. 
++                        - Instead, acknowledge the limitation and suggest that the user navigate to our **Help & Support** page (accessible via the floating question mark icon) where they can submit a ticket to our human licensing specialists. Use the exact phrase "Support Navigator" if you are suggesting this.
                         
                         **Formatting:**
                         - Use **bold** for feature names and plan names.

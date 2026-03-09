@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useData } from '../context/DataContext.jsx';
 import './Chatbot.css';
 
-const Chatbot = () => {
+const Chatbot = ({ onNavigateToHelp }) => {
     const { plans, features, API_BASE } = useData();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
@@ -10,15 +10,16 @@ const Chatbot = () => {
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isStreaming, setIsStreaming] = useState(false);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: isStreaming ? 'auto' : 'smooth' });
     };
 
     useEffect(() => {
         if (isOpen) scrollToBottom();
-    }, [messages, isOpen]);
+    }, [messages, isOpen, isStreaming]);
 
     const handleSend = async () => {
         if (!input.trim() || isTyping) return;
@@ -52,13 +53,65 @@ const Chatbot = () => {
             const data = await response.json();
 
             if (data.choices && data.choices[0]) {
-                setMessages(prev => [...prev, { role: 'bot', content: data.choices[0].message.content }]);
+                const fullContent = data.choices[0].message.content;
+                const words = fullContent.split(' ');
+
+                // Add an initial empty bot message
+                setMessages(prev => [...prev, { role: 'bot', content: '', isTyping: true }]);
+                setIsStreaming(true);
+
+                let currentWordIndex = 0;
+                const interval = setInterval(() => {
+                    if (currentWordIndex < words.length) {
+                        setMessages(prev => {
+                            const newMessages = [...prev];
+                            const lastMessage = { ...newMessages[newMessages.length - 1] };
+                            lastMessage.content = lastMessage.content + (lastMessage.content ? ' ' : '') + words[currentWordIndex];
+                            newMessages[newMessages.length - 1] = lastMessage;
+                            return newMessages;
+                        });
+                        currentWordIndex++;
+                    } else {
+                        clearInterval(interval);
+                        setMessages(prev => {
+                            const newMessages = [...prev];
+                            newMessages[newMessages.length - 1].isTyping = false;
+                            return newMessages;
+                        });
+                        setIsStreaming(false);
+                    }
+                }, 40); // 40ms per word for a smooth typing feel
             } else {
                 throw new Error('Invalid response from AI');
             }
         } catch (error) {
             console.error('Chat Error:', error);
-            setMessages(prev => [...prev, { role: 'bot', content: "I'm having trouble connecting to my brain right now. Please try again in a moment." }]);
+            const errorMsg = "I'm having trouble connecting to my brain right now. Please try again in a moment.";
+            const errorWords = errorMsg.split(' ');
+
+            setMessages(prev => [...prev, { role: 'bot', content: '', isTyping: true }]);
+            setIsStreaming(true);
+            let eIdx = 0;
+            const eInterval = setInterval(() => {
+                if (eIdx < errorWords.length) {
+                    setMessages(prev => {
+                        const newMsgs = [...prev];
+                        const last = { ...newMsgs[newMsgs.length - 1] };
+                        last.content = last.content + (last.content ? ' ' : '') + errorWords[eIdx];
+                        newMsgs[newMsgs.length - 1] = last;
+                        return newMsgs;
+                    });
+                    eIdx++;
+                } else {
+                    clearInterval(eInterval);
+                    setMessages(prev => {
+                        const newMessages = [...prev];
+                        newMessages[newMessages.length - 1].isTyping = false;
+                        return newMessages;
+                    });
+                    setIsStreaming(false);
+                }
+            }, 40);
         } finally {
             setIsTyping(false);
         }
@@ -93,8 +146,10 @@ const Chatbot = () => {
 
                     <div className="chatbot-messages custom-scrollbar">
                         {messages.map((msg, idx) => {
+                            const isSupportTriggered = msg.role === 'bot' && msg.content.includes('Support Navigator');
                             // Simple formatting for bold, lists, and links
                             const formattedContent = msg.content
+                                .replace('Support Navigator', '') // Hide the internal trigger word
                                 .split('\n').map((line, i) => {
                                     // Bolding
                                     let processed = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -108,11 +163,24 @@ const Chatbot = () => {
                                 }).join('');
 
                             return (
-                                <div
-                                    key={idx}
-                                    className={`message ${msg.role}`}
-                                    dangerouslySetInnerHTML={{ __html: formattedContent }}
-                                />
+                                <div key={idx} className={`message-wrapper ${msg.role}`}>
+                                    <div
+                                        className={`message ${msg.role}`}
+                                        dangerouslySetInnerHTML={{ __html: formattedContent }}
+                                    />
+                                    {isSupportTriggered && !msg.isTyping && (
+                                        <button
+                                            className="nav-to-help-btn"
+                                            onClick={() => {
+                                                onNavigateToHelp();
+                                                setIsOpen(false);
+                                            }}
+                                        >
+                                            <i className="fas fa-headset"></i>
+                                            Contact Support Expert
+                                        </button>
+                                    )}
+                                </div>
                             );
                         })}
                         {isTyping && (

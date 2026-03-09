@@ -287,7 +287,7 @@ const AppContent = () => {
                 >
                     <i className={activeTab === 'help' ? "fas fa-times" : "fas fa-question"}></i>
                 </button>
-                <Chatbot />
+                <Chatbot onNavigateToHelp={() => setActiveTab('help')} />
             </div>
 
         </div>
