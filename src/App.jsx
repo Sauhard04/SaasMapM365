@@ -280,13 +280,6 @@ const AppContent = () => {
             )}
 
             <div className="floating-actions">
-                <button
-                    className={`help-toggle-float ${activeTab === 'help' ? 'active' : ''}`}
-                    onClick={() => setActiveTab(activeTab === 'help' ? 'map' : 'help')}
-                    title="Support & Help"
-                >
-                    <i className={activeTab === 'help' ? "fas fa-times" : "fas fa-question"}></i>
-                </button>
                 <Chatbot onNavigateToHelp={() => setActiveTab('help')} />
             </div>
 
