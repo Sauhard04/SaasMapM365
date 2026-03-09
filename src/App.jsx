@@ -132,8 +132,8 @@ const AppContent = () => {
                             </div>
                         ) : (
                             <button onClick={() => setShowLogin(true)} className="sign-in-btn">
-                                <i className="fab fa-microsoft"></i>
-                                Sign In
+                                <i className="fas fa-user"></i>
+                                Admin
                             </button>
                         )}
                     </div>
