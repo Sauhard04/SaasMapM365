@@ -161,10 +161,10 @@ const AppContent = () => {
                                             )}
                                         </div>
                                         <h2 className="hero-title">
-                                            {selectedPlans.length > 1 ? (
-                                                <span className="gradient-text">Multi-License Stack</span>
+                                            {selectedPlans.length > 0 ? (
+                                                `${selectedPlans.length} Selected`
                                             ) : (
-                                                selectedPlans[0]?.name || 'Start Exploring'
+                                                'Start Exploring'
                                             )}
                                         </h2>
                                     </div>
@@ -283,6 +283,12 @@ const AppContent = () => {
                 <Chatbot onNavigateToHelp={() => setActiveTab('help')} />
             </div>
 
+            <footer className="app-footer">
+                <div className="footer-content">
+                    <p className="footer-copyright">&copy; 2026 Meridian</p>
+                    <p className="footer-powered">POWERED BY MERIDIAN SOLUTIONS PVT LTD</p>
+                </div>
+            </footer>
         </div>
     );
 };

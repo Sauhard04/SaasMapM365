@@ -133,10 +133,10 @@
 }
 
 .fm-category-btn.active {
-    background: linear-gradient(135deg, #2563eb, #6366f1);
+    background: #0052cc;
     border-color: transparent;
     color: white;
-    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 8px 16px -4px rgba(0, 82, 204, 0.35);
 }
 
 .fm-category-btn span {
