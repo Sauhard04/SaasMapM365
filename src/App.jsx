@@ -55,8 +55,15 @@ const AppContent = () => {
     if (isLoading) {
         return (
             <div className="loading-screen">
-                <div className="loader"></div>
-                <p>Establishing Connection to Matrix DB...</p>
+                <div className="three-d-loader">
+                    <div className="loader-ring"></div>
+                    <div className="loader-ring"></div>
+                    <div className="loader-ring"></div>
+                </div>
+                <div className="loading-text">
+                    <h1 className="loading-title">SaaSMap</h1>
+                    <p className="loading-subtitle">Initializing M365 Navigator...</p>
+                </div>
             </div>
         );
     }

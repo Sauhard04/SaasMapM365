@@ -192,23 +192,17 @@ const ComparisonTool = () => {
                                                 let content = null;
 
                                                 if (hasFeature) {
-                                                    if (f.tierComparison) {
-                                                        const tier = f.tierComparison.tiers.find((t) => t.includedInPlanIds?.includes(plan.id));
-                                                        content = (
-                                                            <div className="cell-tier">
-                                                                <div className="cell-check-circle">
-                                                                    <i className="fas fa-check"></i>
-                                                                </div>
-                                                                {tier && <div className="cell-tier-name">{tier.tierName}</div>}
-                                                            </div>
-                                                        );
-                                                    } else {
-                                                        content = (
+                                                    const tier = f.tierComparison?.tiers.find((t) => t.includedInPlanIds?.includes(plan.id));
+                                                    content = (
+                                                        <div className="cell-tier">
                                                             <div className="cell-check-circle">
                                                                 <i className="fas fa-check"></i>
                                                             </div>
-                                                        );
-                                                    }
+                                                            <div className="cell-tier-name">
+                                                                {tier?.tierName || 'INCLUDED'}
+                                                            </div>
+                                                        </div>
+                                                    );
                                                 }
 
                                                 return (

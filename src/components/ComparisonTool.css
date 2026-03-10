@@ -404,10 +404,63 @@
         background-color: #f1f5f9 !important;
     }
 
-    /* Target the grid container specifically for printing */
+    /* Ensure the matrix fills the page but doesn't overflow */
     .matrix-scroll>div {
-        grid-template-columns: minmax(180px, 1.5fr) repeat(auto-fit, minmax(80px, 1fr)) !important;
+        display: grid !important;
         width: 100% !important;
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        /* Critical: ensure no gaps between cells that cause distorted lines */
+        gap: 0 !important;
+    }
+
+    /* Cleanup cell content for vertical alignment and clean borders */
+    .matrix-cell,
+    .matrix-row-header,
+    .matrix-plan-header,
+    .matrix-header-cell {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-height: 5rem !important;
+        padding: 0.75rem 1rem !important;
+        /* Use 1px instead of 0.5px to avoid sub-pixel distortion in PDFs */
+        border: 0.5px solid #e2e8f0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: white !important;
+    }
+
+    .matrix-plan-header,
+    .matrix-header-cell {
+        background: #f8fafc !important;
+        font-weight: 800 !important;
+    }
+
+    .matrix-row-header {
+        align-items: flex-start !important;
+        background: white !important;
+    }
+
+    .matrix-cell {
+        align-items: center !important;
+        background: white !important;
+    }
+
+    .matrix-category-header {
+        grid-column: 1 / -1 !important;
+        padding: 1rem !important;
+        text-align: left !important;
+        letter-spacing: 0.3em !important;
+        background-color: #f1f5f9 !important;
+        font-weight: 900 !important;
+        border: 0.5px solid #e2e8f0 !important;
+        display: block !important;
+    }
+
+    /* Fix for empty cells in grid to ensure border continuity */
+    .matrix-cell:empty::before {
+        content: "\00a0";
     }
 }
 

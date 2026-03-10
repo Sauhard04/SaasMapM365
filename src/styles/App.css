@@ -671,23 +671,72 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--slate-900);
+    background: #0f172a;
     color: var(--white);
-    gap: 1.5rem;
+    gap: 3rem;
+    overflow: hidden;
+    position: relative;
 }
 
-.loader {
-    width: 48px;
-    height: 48px;
-    border: 5px solid rgba(255, 255, 255, 0.1);
-    border-bottom-color: var(--blue-500);
+.loading-screen::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 82, 204, 0.1) 0%, transparent 40%);
+    animation: pulseBG 4s ease-in-out infinite;
+}
+
+@keyframes pulseBG {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+.three-d-loader {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.loader-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 4px solid transparent;
     border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
+    border-top-color: #0052cc;
+    animation: rotateRing 2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
-@keyframes rotation {
+.loader-ring:nth-child(1) {
+    animation-delay: -0.45s;
+    transform: rotateX(35deg) rotateY(-45deg);
+}
+
+.loader-ring:nth-child(2) {
+    animation-delay: -0.3s;
+    transform: rotateX(50deg) rotateY(10deg);
+    border-top-color: #60a5fa;
+}
+
+.loader-ring:nth-child(3) {
+    animation-delay: -0.15s;
+    transform: rotateX(-35deg) rotateY(20deg);
+    border-top-color: #3b82f6;
+}
+
+@keyframes rotateRing {
     0% {
         transform: rotate(0deg);
     }
@@ -695,6 +744,29 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+.loading-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 1;
+}
+
+.loading-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: white;
+}
+
+.loading-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+    letter-spacing: 0.05em;
 }
 
 /* =============================================
@@ -974,12 +1046,40 @@
    PRINT STYLES
    ============================================= */
 @media print {
+    @page {
+        size: landscape;
+        margin: 1cm;
+    }
 
     .nav-container,
     .billing-toggle,
     .header-actions,
     .floating-actions,
-    .no-print {
+    .no-print,
+    .app-footer {
         display: none !important;
+    }
+
+    .app-header {
+        position: relative !important;
+        box-shadow: none !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .header-content {
+        justify-content: center !important;
+        height: auto !important;
+        padding: 2rem !important;
+    }
+
+    .logo-container {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+
+    .logo-icon {
+        margin: 0 auto 0.5rem !important;
+        box-shadow: none !important;
     }
 }
