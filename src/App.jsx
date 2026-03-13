@@ -5,6 +5,8 @@ import ComparisonTool from './components/ComparisonTool.jsx';
 import AdminPortal from './components/AdminPortal.jsx';
 import HelpForm from './components/HelpForm.jsx';
 import Chatbot from './components/Chatbot.jsx';
+import TermsAndConditions from './components/TermsAndConditions.jsx';
+import PrivacyPolicy from './components/PrivacyPolicy.jsx';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import './styles/App.css';
 
@@ -148,7 +150,11 @@ const AppContent = () => {
             </header>
 
             <main className="main-content">
-                {activeTab === 'admin' ? (
+                {activeTab === 'terms' ? (
+                    <TermsAndConditions onBack={() => setActiveTab('map')} />
+                ) : activeTab === 'privacy' ? (
+                    <PrivacyPolicy onBack={() => setActiveTab('map')} />
+                ) : activeTab === 'admin' ? (
                     <AdminPortal />
                 ) : activeTab === 'help' ? (
                     <HelpForm onBack={() => setActiveTab('map')} />
@@ -292,8 +298,18 @@ const AppContent = () => {
 
             <footer className="app-footer">
                 <div className="footer-content">
-                    <p className="footer-copyright">&copy; 2026 Meridian</p>
-                    <p className="footer-powered">POWERED BY MERIDIAN SOLUTIONS PVT LTD</p>
+                    <button onClick={() => { setActiveTab('terms'); window.scrollTo(0, 0); }} className="footer-legal-link" id="footer-terms-link">
+                        <i className="fas fa-file-contract"></i>
+                        Terms & Conditions
+                    </button>
+                    <div className="footer-center">
+                        <p className="footer-copyright">&copy; 2026 Meridian</p>
+                        <p className="footer-powered">POWERED BY MERIDIAN SOLUTIONS PVT LTD</p>
+                    </div>
+                    <button onClick={() => { setActiveTab('privacy'); window.scrollTo(0, 0); }} className="footer-legal-link" id="footer-privacy-link">
+                        <i className="fas fa-shield-halved"></i>
+                        Privacy Policy
+                    </button>
                 </div>
             </footer>
         </div>
